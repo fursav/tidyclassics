@@ -430,7 +430,8 @@
       color: #CBD0D3;
       text-decoration: none;
       padding: 1rem;
-      display:block;  
+      display:block;
+      cursor: pointer;
     }
 
     #book-nav li:last-child {
@@ -806,6 +807,8 @@
     // Default route
     window.router.add('', function () {    
       window.state.page = "booklist";   
+      uncheck(window.ui.playertoggle);
+      uncheck(window.ui.booknavtoggle);
       displayBookList(Object.keys(window.state.booklist));
       updatePageTitle();
     });
