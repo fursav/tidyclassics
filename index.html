@@ -1,0 +1,1084 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Interactive Classics</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width,height=device-height,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+  <meta http-equiv="cleartype" content="on">
+    <!-- android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="translucent-black">
+  <meta name="apple-mobile-web-app-title" content="Tidy Classics">
+  <link rel="stylesheet" href="libraries/normalize.min.css">
+  <link rel="stylesheet" href="libraries/plyr.min.css">
+  <style type="text/css">
+
+    /*FONTS*/
+
+    @font-face {
+      font-family: LibreBaskerville;
+      src: url(fonts/LibreBaskerville-Regular.otf);
+      font-weight:400;
+    }
+    
+    @font-face {
+      font-family: Sherwood;
+      src: url(fonts/SHERWOOD.TTF);
+      font-weight:400;
+    }
+    
+    @font-face {
+      font-family: EileenCaps;
+      src: url(fonts/EileenCaps-Regular.ttf);
+      font-weight:400;
+    }
+    
+    /*UTILITIES*/
+    
+    .off-down {
+      transform: translate3d(0, 100%, 0);
+      -webkit-transform: translate3d(0, 100%, 0);  
+    }
+    
+    .off-right {
+      transform: translate3d(100%, 0, 0);
+      -webkit-transform: translate3d(100%, 0, 0);
+    }
+    
+    .slideIn {
+      transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
+    }
+    
+    .dropcap { 
+      float:left;
+      font-size:5em;
+      padding: 0.4em 0;
+      font-family: EileenCaps;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .invisible {
+      position: fixed;
+      clip: rect(0, 0, 0, 0);
+    }
+    
+    .img-center {      
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      margin:auto;    
+      left: 0;
+      right: 0; 
+    }
+    
+    .no-margin {
+      margin: 0;
+    }
+    
+    .book-thumb {
+      padding: 0;
+    }
+    
+    .fg-gray {
+      color: #999;
+    }
+
+    .button {
+      background: none repeat scroll 0% 0% rgb(91, 192, 222);
+      color: rgb(255, 255, 255);
+      padding: 6px 12px;
+      line-height: 1.42857;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      -moz-user-select: none;
+      border-radius: 4px;      
+      text-decoration: none;
+    }
+    
+    /*GENERAL*/
+    
+    html {
+      box-sizing: border-box;
+      font-family: LibreBaskerville;
+      height:100%;
+      /*background: #ddd;*/
+    }
+    
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    
+    body {
+      background: #FFFDDF;
+      color: #333;
+      position: relative;
+      overflow:hidden;
+    }
+    
+    @media (max-width: 30em) {
+      body {
+        font-size: 14px;
+      }
+    }
+    
+    .container {
+      height:100vh;
+      padding-top: 3rem;
+      width:100%;
+      position:absolute;
+      will-change: transform;      
+      transition: -webkit-transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      transition: transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+    }
+    
+    .content-wrapper {
+      padding: 1em 0.7em 2em;
+      height: 100%;
+      width: 100%;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+    }
+/*
+    .content-wrapper {
+      margin-top:3rem;
+      padding: 1em 0.7em 2em;
+      height: 100vh;
+      width: 100%;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      position:absolute;      
+      will-change: transform;      
+      transition: -webkit-transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      transition: transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946);
+      top: 0;
+      bottom: 2em;
+    }
+*/
+    
+    @media (min-width: 30em) and (max-width: 1200px) {
+      .content-wrapper {
+        padding-left: 15%;
+        padding-right: 15%;
+      }
+    }
+    
+    @media (min-width: 1200px) {
+      .content-wrapper {
+        padding-left: 20%;
+        padding-right: 20%;
+      }
+    }
+    
+    p {      
+      letter-spacing: 1px;
+      line-height: 1.5em;    
+    }
+    
+    p img {    
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    
+    blockquote {
+      font-style: italic;
+      /*margin: 0;   */   
+      display: table;
+      margin: 0 auto;
+      letter-spacing: 1px;
+      line-height: 1.5em;
+    }
+    
+    blockquote p {
+      /*line-height: 2em;*/
+    }
+    
+    pre {
+      font-family:inherit;
+      white-space: pre-wrap;
+      margin:0;
+    }
+    
+    /*COMPONENTS*/
+    
+    #nav {
+      display: table; 
+      table-layout: fixed;
+      position: fixed;
+      top: 0;
+      height:3rem;
+      width:100%;
+      background: #E9CFD2;
+      color: #666;      
+      fill: #666;
+      z-index:10;
+      box-shadow: 0px 0px 5px 0px #333;
+    }    
+    
+    #nav div {
+      vertical-align: middle;
+      display: table-cell;
+    }
+    
+    #nav-left {
+      text-align:left;
+      width: 15%;
+    }
+    
+    #nav-left a {
+      display:block;
+      text-align:center;
+    }
+    
+    #nav-center {
+      text-align:center;
+      font-size: 1.2em;
+      width: 70%;
+    }
+    
+    #nav-right {
+      text-align:right;
+      width: 15%;
+    }
+        
+    #book-list {
+      /*margin:auto;*/
+    }
+    
+    #book-list ul {
+      margin: 0;
+      list-style: none;
+      padding: 0 10px;
+    }
+    
+    #book-list li {
+      background: white;
+      box-shadow: 0 0 2px 0 #999;
+      position: relative;
+      height: 7rem;
+      display: table;
+      table-layout: fixed;
+      width:100%;      
+    }
+    
+    .book-info-left {
+      display: table-cell;
+      width:26%;
+      position:relative;    
+    }
+    
+    .book-info-right {
+      display: table-cell;
+      width:74%;
+      padding: 0.5rem;
+    }
+
+    .start-reading {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+    }
+    
+    #book-toc {
+      /*background: #f1f1f1;*/
+      background: #FAFBE4;
+      z-index:2;
+    }
+    
+    #toc-list {
+      list-style-type: upper-roman;
+    }
+    
+    #toc-list li {
+      width: 100%;
+    }
+    
+    #toc-list > li > a {
+      display: block;
+      padding: 1em;
+      text-decoration:none;
+      color:#333;
+    }
+
+    @media (min-width: 30em) {
+      #toc-list li {
+        padding: 0.4em;
+      }
+    }
+    
+    #player-toggle:checked ~ nav > #nav-right {
+      background: #A24B54;
+      color: #fff;
+      fill: #CBD0D3;
+    }
+
+    #book-nav-toggle:checked ~ nav > #nav-center {
+      background: #A24B54;
+      color: #fff;
+    }
+
+    #player-toggle:checked ~ #audio-player-container {
+      transform: translate3d(0,0,0);
+    }
+
+    #book-nav-toggle:checked ~ #book-nav {
+      transform: translate3d(0,0,0);
+    }
+
+    #nav-center > label {
+      height: 3rem;
+      display:table;
+      position:relative;
+      cursor:pointer; 
+      width:100%; 
+      user-select: none;
+      -moz-user-select: none;
+    }
+
+    #page-title {
+      display:table-cell;
+      vertical-align:middle;
+    }
+
+    #nav-right > label {
+      height: 3rem;
+      display:block;
+      position:relative;
+      cursor:pointer;
+    }
+
+    #nav-right > label > svg {
+      height:25px;
+      width:25px;
+      display:block;
+      margin:auto;
+      position:absolute;
+      margin: auto;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+    }
+
+    .subnav {  
+      position:absolute;
+      margin-top: 3rem;
+      z-index:9;
+      width:100%;
+      background: #A24B54;
+      padding-top: 0.5rem;
+      transform: translate3d(0,-140%,0);
+      transition: -webkit-transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    #page-total {
+      position:absolute;
+      color: #999;
+      bottom:0;
+      left: 50%;
+      transform: translate(-50%, 0);
+      -webkit-transform: translate(-50%,0);
+      font-size: 12px;
+    }
+
+    #book-nav-toggle:checked ~ #book-nav-overlay,#player-toggle:checked ~ #player-overlay{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      transition: opacity 0.3s;
+      z-index: 4;
+    }
+
+    .overlay {
+      position: absolute;
+    }
+
+    #book-nav {
+      list-style-type:none;
+      margin-bottom:0;
+      padding:0.5em 0 0;
+      background: #A24B54;
+    }
+
+    #book-nav li {
+      text-align:center;
+      border-bottom: 1px solid #888;
+    }
+
+    #book-nav a, #book-nav span {
+      color: #CBD0D3;
+      text-decoration: none;
+      padding: 1rem;
+      display:block;  
+    }
+
+    #book-nav li:last-child {
+      border-bottom: none;
+    }
+    
+    #book-inner {
+      z-index:3;
+      /*background: #fff;*/
+      background: #FFFAF2;
+    }
+    
+    #book-inner h2 {
+      font-family: Sherwood;
+      letter-spacing:1px;
+      font-size:2em;
+      color: #444;
+      text-align:center;      
+    }
+
+  </style>
+</head>
+
+<body>
+  <input id="book-nav-toggle" type="checkbox" class="invisible" disabled onclick='uncheck(window.ui.playertoggle)'>
+  <input id="player-toggle" type="checkbox" class="invisible" onclick='uncheck(window.ui.booknavtoggle)'>
+  <nav id="nav" class="">
+    <div id="nav-left" class=""><a href="#"><img src="img/home.png" width=30 alt="Home"></a></div>
+    <div id="nav-center" class="">
+      <label id="book-nav-toggle-label" for="book-nav-toggle">
+        <span id="page-title">Tidy Classics</span><span id="page-total" class="hidden"></span>
+      </label>
+    </div>
+    <div id="nav-right" class=""><label id="player-toggle-label" for="player-toggle" class="hidden"><svg class="img-center"><use xlink:href="#icon-volume"></use></svg></label></div>
+  </nav>
+  <label id="player-overlay" for="player-toggle" class="overlay"></label>
+  <label id="book-nav-overlay" for="book-nav-toggle" class="overlay"></label>
+  <div id="audio-player-container" class="subnav">
+    <div id="audio-player" class="player">
+      <audio controls>
+          <!-- Audio files -->
+          <source src="" type="audio/mp3">
+
+          <!-- Fallback for browsers that don't support the <audio> element -->
+          <a href="">Download</a>
+      </audio>
+    </div>  
+  </div>
+  <ul id="book-nav" onclick='uncheck(window.ui.booknavtoggle)' class="subnav"></ul>
+  <div id="book-list-c" class="container">
+    <div id="book-list" class="content-wrapper"></div>
+  </div>
+  <div id="book-toc-c" class="container off-right">
+    <div id="book-toc" class="content-wrapper"></div> 
+  </div>
+  <div id="book-inner-c" class="container off-down">
+    <div id="book-inner" class="content-wrapper"></div> 
+  </div>
+  <script id="book-list-template" type="x-tmpl-mustache">
+  <ul>
+  {{#list}}
+    <li class="book-card">
+      <div class="book-info-left"><img src="{{thumb}}" class="book-thumb img-center"></img></div>
+      <div class="book-info-right">
+        <h4 class="no-margin">{{name}}</h4>
+        <div class="fg-gray">{{displayAuthor}}</div>
+        <a href='#book/{{id}}' class="start-reading button">Start Reading</a>
+      </div>    
+    </li>
+  {{/list}}
+  </ul>
+  </script>
+  <script id="toc-template" type="x-tmpl-mustache">
+  <h3>Contents</h3>
+  <ol id="toc-list">
+  {{#list}}
+    <li>
+      <a href={{href}}>{{name}}</a>   
+    </li>
+  {{/list}}
+  </ol>
+  </script>
+  <script>
+  (function(d,p){
+      var a=new XMLHttpRequest(),
+          b=d.body;
+      a.open("GET",p,!0);
+      a.send();
+      a.onload=function(){
+          var c=d.createElement("div");
+          c.style.display="none";
+          c.innerHTML=a.responseText;
+          b.insertBefore(c,b.childNodes[0])
+      }
+  })(document,"img/sprite.svg");
+  </script>
+<!--
+  <script src="fastdom.min.js"></script>
+  <script src="plyr.js"></script>
+  <script src="showdown.min.js"></script>
+  <script src="promiz.min.js"></script>
+  <script src="rlite.min.js"></script>
+  <script src="mustache.min.js"></script>
+  <script src="libraries/fastclick.min.js"></script>
+-->
+  <script src="libraries/libraries.js"></script>
+  <script>plyr.setup({"controls":["restart", "rewind", "play", "fast-forward", "current-time", "duration", "mute", "volume"]});</script>
+<script>
+  //-----------------
+  // TOOLS
+  //-----------------
+  
+  function ready(fn) {
+    if (document.readyState != 'loading'){
+      fn();
+    } else {
+      document.addEventListener('DOMContentLoaded', fn);
+    }
+  }
+  
+  function getJSON(url) {
+    return new Promise(function(resolve,reject) {
+      var request = new XMLHttpRequest();
+      request.open('GET', url, true);
+
+      request.onload = function() {
+        if (request.status >= 200 && request.status < 400) {
+          // Success!
+          var data = JSON.parse(request.responseText);
+          resolve(data);
+        } else {
+          // We reached our target server, but it returned an error
+          reject();
+        }
+      };
+
+      request.onerror = function() {
+        // There was a connection error of some sort
+        reject();
+      };
+
+      request.send();
+    
+    });
+  }
+  
+  function ajax(url) {
+  
+    return new Promise(function(resolve,reject) {;  
+      var request = new XMLHttpRequest();
+      request.open('GET', url, true);
+
+      request.onload = function() {
+        if (request.status >= 200 && request.status < 400) {
+          // Success!
+          var resp = request.responseText;
+          resolve(resp);
+        } else {
+          // We reached our target server, but it returned an error
+          reject();
+        }
+      };
+
+      request.onerror = function() {
+        // There was a connection error of some sort
+      };
+
+      request.send();
+    })
+  }
+  
+  function addClass(el,className) {
+    if (el.classList)
+      el.classList.add(className);
+    else
+      el.className += ' ' + className;
+  }
+  
+  function removeClass(el,className) {
+    if (el.classList)
+      el.classList.remove(className);
+    else
+      el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+
+  }  
+  
+  function hasClass(el,className) {
+    if (el.classList)
+      return el.classList.contains(className);
+    else
+      return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+  }
+    
+  function readDOM(ref,fn) {
+    fastdom.read(fn,window.ui[ref]);
+  }
+  
+  function updateDOM(ref,fn) {
+    fastdom.write(fn,window.ui[ref]);      
+  }
+
+  function addToHash(str) {
+    location.hash = location.hash + str
+  }
+  
+  function animate(ref,cls,a) {
+    window.animating.push([ref,cls,a])
+    if (window.animating.length === 1) {
+      checkAnimQueue();
+    }
+  }
+    
+  function checkAnimQueue() {
+    var anim = window.animating[0];
+    if (anim === null || anim === undefined) {
+    }
+    else {
+      actualAnimate(anim[0],anim[1],anim[2]).then(function(){window.animating.shift();}).then(checkAnimQueue);
+    }
+  }
+  
+  function actualAnimate(ref,cls,a) {
+    var el = window.ui[ref];
+    /* From Modernizr */
+    function whichTransitionEvent(){
+        var t;
+        var transitions = {
+          'transtion':'transitionend',
+          'OTransition':'oTransitionEnd',
+          'MozTransition':'transitionend',
+          'WebkitTransition':'webkitTransitionEnd'
+        }
+
+        for(t in transitions){
+            if( el.style[t] !== undefined ){
+                return transitions[t];
+            }
+        }
+    }
+    function whichAnimationEvent(){
+        var t;
+        var transitions = {
+          'animation':'animationend',
+          'OAnimation':'oAnimationEnd',
+          'MozAnimation':'animationend',
+          'WebkitAnimation':'webkitAnimationEnd'
+        }
+
+        for(t in transitions){
+            if( el.style[t] !== undefined ){
+                return transitions[t];
+            }
+        }
+    }
+    
+    return new Promise(function(resolve,reject) {
+        /* Listen for a transition! */
+      fastdom.read(function() {
+        var transitionEvent = whichTransitionEvent();
+        fastdom.write(function() {
+          if (a === "a") {
+            if (hasClass(el,cls)) {
+              resolve();
+            }
+            else {
+              addClass(el,cls);
+            }
+          }
+          else {
+            if (hasClass(el,cls)) {
+              removeClass(el,cls);
+            }
+            else {
+              resolve();
+            }
+          }     
+        });
+        transitionEvent && el.addEventListener(transitionEvent, function() {
+          resolve();
+        });
+      });
+    });
+    
+  }
+  
+  function uncheck(el) {
+    el.checked = false;
+  }
+  
+  function isSmallScreen() {
+    return window.viewport < 460;
+  }
+  
+  //--------------
+  // APP
+  //--------------
+  //
+  //window.ui = 
+  //  {
+  //    title: (el),
+  //    booklist: (el),
+  //    booktoc: (el),
+  //    bookinner: (el)
+  //  }
+  //
+  //
+  //window.state = 
+  //  {
+  //    booklist: {id:
+  //                {
+  //                  id
+  //                  name,
+  //                  author,
+  //                  year,
+  //                  category,
+  //                  toc
+  //                  
+  //                },
+  //            ...
+  //           },
+  //    page: (string),
+  //    selectedbook: (string)
+  //  }
+  //
+  ready(function() {
+  
+    if ('addEventListener' in document) {
+        document.addEventListener('DOMContentLoaded', function() {
+            FastClick.attach(document.body);
+        }, false);
+    }
+    window.viewport = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    window.ui = {}
+    window.state = {
+      booklist: {}
+    }
+    window.bookmarking = false
+    window.ui.bookListTemplate = document.getElementById("book-list-template");
+    window.ui.tocTemplate = document.getElementById("toc-template");
+    window.ui.title = document.getElementById("page-title");
+    window.ui.booklist = document.getElementById("book-list");
+    window.ui.booktoc = document.getElementById("book-toc");
+    window.ui.bookinner = document.getElementById("book-inner");
+    window.ui.booklistC = document.getElementById("book-list-c");
+    window.ui.booktocC = document.getElementById("book-toc-c");
+    window.ui.bookinnerC = document.getElementById("book-inner-c");
+    window.ui.pagetotal = document.getElementById("page-total");
+    window.ui.playertoggle = document.getElementById("player-toggle")
+    window.ui.playertogglelabel = document.getElementById("player-toggle-label")
+    window.ui.booknavtoggle = document.getElementById("book-nav-toggle");
+    window.ui.booknav = document.getElementById("book-nav");
+    window.ui.player = document.getElementById("audio-player");
+    window.animating = []
+    //
+    //ROUTER
+    //
+    window.router = Rlite();
+    
+    fastdom.onError = function(error) {
+      console.log(error);
+    };
+    
+    loadBookList().then(function(data) {
+      var l = data.length;
+      for (var i = 0; i < l;i++) {
+        window.state.booklist[data[i].id] = data[i]
+        window.state.booklist[data[i].id].displayAuthor = data[i].author[0] + ", " + data[i].author[1]
+      }
+    }).then(function () {
+      processHash();
+    })
+
+    // Default route
+    window.router.add('', function () {    
+      window.state.page = "booklist";   
+      displayBookList(Object.keys(window.state.booklist));
+      updatePageTitle();
+    });
+
+    window.router.add('book/:id', function (r) {
+      window.state.page = "book";
+      window.state.selectedbook = r.params.id;
+      getTOC(r.params.id).then(displayTOC)
+      updatePageTitle();
+    });
+
+    window.router.add('book/:id/chapter/:idx', function (r) {
+      window.loading = new Promise(function(resolve,reject) {
+        window.state.page = "bookchapter";
+        window.state.selectedbook = r.params.id;
+        updateDOM("booknavtoggle",function(){this.disabled = false;})
+        getTOC(r.params.id).then(function (toc) {
+          loadBookNav(r.params.id,r.params.idx);
+          loadBookChapter(r.params.id,toc[r.params.idx-1].file).then(function(data){displayBookChapter(data,r.params.p)})
+          .then(resolve)
+          .then(updatePageTitle)
+          .then(function() {loadAudioFile(r.params.id,toc[r.params.idx-1].file);})
+        });
+      });
+    });
+
+    // Hash-based routing
+    function processHash() {
+      if (window.bookmarking) {
+        window.bookmarking = false
+      }
+      else {
+        var page = window.state.page
+        var hash = location.hash || '#';
+        window.router.run(hash.substr(1));
+        updateTransitions(page);
+      }
+    }
+
+    window.addEventListener('hashchange', processHash);
+    
+  });
+  
+  function updateTransitions(oldpage) {
+  
+    var newpage = window.state.page;
+    
+    function transitionIn() {
+      //conditional page leaving logic
+      // and page entrance logic
+      switch (newpage) {
+        case "booklist":
+          switch (oldpage) {
+            default:
+              updateDOM("booktocC",function(){removeClass(this,"slideIn");});
+              break;
+          }
+          break;
+        case "book":
+          animate("booktocC","slideIn","a");
+          break;
+        case "bookchapter":
+          switch(oldpage) {
+            default:
+              animate("bookinnerC","slideIn","a");  
+              updateDOM("playertogglelabel",function(){removeClass(this,"hidden");});
+              updateDOM("pagetotal",function(){removeClass(this,"hidden");});
+          }
+          break;
+      }   
+    }
+  
+    //default logic on leaving a page
+    switch (oldpage) {
+      case "booklist":
+        break;
+      case "book":
+        break;
+      case "bookchapter":
+        if (newpage !== "bookchapter") {
+          readDOM("player",function(){
+            if(this.plyr.media.currentTime === 0) {
+              updateDOM("playertogglelabel",function(){addClass(this,"hidden");});
+            }
+          });
+          updateDOM("pagetotal",function(){addClass(this,"hidden");});          
+          updateDOM("booknavtoggle",function(){this.disabled = true;});
+        }
+        updateDOM("bookinner",function(){this.scrollTop=0;});
+        animate("bookinnerC","slideIn","r");
+        break;    
+    }
+    if (window.loading !== null && window.loading !== undefined) {
+      window.loading.then(transitionIn);
+    }
+    else {
+      transitionIn();
+    }
+  }
+  
+  function updatePageTitle() {
+    function getTitle() {
+      switch (window.state.page) {
+        case "book":
+          return getBookAttribute(window.state.selectedbook,"shortname");
+        case "bookchapter":
+          return getBookAttribute(window.state.selectedbook,"shortname");
+        default:
+          return "Tidy Classics";
+      }
+    }
+    document.title = getTitle();
+    updateDOM("title",function(){this.innerHTML = getTitle();});
+  }
+  
+  function loadBookNav(id,idx) {
+    idx = parseInt(idx)
+    list = [["Table Of Contents","#book/"+id]];
+    if (idx > 1) {
+      list.push(["Previous Chapter","#book/"+id+"/chapter/"+(idx-1)]);
+    }
+    if (window.state.booklist[id].toc.length > idx) {
+      list.push(["Next Chapter","#book/"+id+"/chapter/"+(idx+1)]);
+    }
+    displaylist = []
+    for (var i=0;i<list.length;i++) {
+      displaylist.push("<li><a href='" + list[i][1] + "'>" + list[i][0] + "</a></li>");
+    }
+    displaylist.push("<li onclick='bookmark()'><span>Bookmark</span></li>");
+    updateDOM("booknav",function(){this.innerHTML = displaylist.join('');});
+  }
+  
+  function getBookAttribute(id,attribute) {
+    return window.state.booklist[id][attribute];
+  }
+  
+  function loadBookList() {
+    return getJSON("source/books.json");
+  }
+  
+  function displayBookList(ids) {
+    var data = [];
+    var l = ids.length;
+    for (var i = 0; i<l;i++) {
+      data.push(window.state.booklist[ids[i]])
+      var a = "";
+      if (isSmallScreen()) {
+        a = "-sm";
+      }
+      data[i].thumb = "source/" + data[i].id + "/thumb" + a + ".jpg"
+    }
+    readDOM("bookListTemplate",function(){
+      var template = this.innerHTML
+      Mustache.parse(template);
+      var rendered = Mustache.render(template, {list:data});
+      updateDOM("booklist",function(){this.innerHTML = rendered;});
+    });
+  }
+  
+  function getTOC(id) {
+    return new Promise(function(resolve,reject) {
+      var toc = window.state.booklist[id].toc;
+      if (toc === null || toc === undefined) {
+        loadTOC(id).then(resolve)
+      }
+      else {
+        resolve(window.state.booklist[id].toc)
+      }
+    })
+  }
+  
+  function loadTOC(id) {
+    return getJSON("source/"+id+"/toc.json").then(function (data) {
+      for( var i=0; i< data.length; i++) {
+          data[i].idx = (function(in_i){return in_i+1;})(i);
+      }
+      window.state.booklist[id].toc = data;
+      return data;
+    });
+  }
+  
+  function displayTOC(data) {
+    readDOM("tocTemplate",function(){
+      var l = data.length;
+      var tempdata = [];
+      var hash = location.hash;
+      for (var i=0;i<l;i++) {
+        tempdata.push(data[i]);
+        tempdata[i].href = hash + "/chapter/" + data[i].idx;
+      }
+      var template = this.innerHTML;
+      Mustache.parse(template);
+      var rendered = Mustache.render(template, {list:tempdata});
+      updateDOM("booktoc",function(){this.innerHTML = rendered;});
+    }); 
+  }
+  
+  function loadBookChapter(id,file) {
+    return ajax("source/"+id+"/"+file)
+  }
+  
+  function displayBookChapter(data,p) {
+    var converter = new showdown.Converter();
+    updateDOM("pagetotal",function(){this.innerHTML = Math.round(data.length/(40*65)) + " pages";});
+    if (window.viewport < 520) {
+      data = data.replace(/([a-zA-Z0-9]+).jpg/g,"$1-sm.jpg");
+    }
+    //~ else if (window.viewport < 1200) {
+    else {
+      data = data.replace(/([a-zA-Z0-9]+).jpg/g,"$1-md.jpg");      
+    }
+    var temp = converter.makeHtml(data).split("<p>")
+    var i = 1;
+    while (i < temp.length) {
+      if (temp[i][0] !== "<") {        
+        temp[i] = "<span class='dropcap'>" + temp[i][0] + "</span>" + temp[i].slice(1);
+        i = temp.length;
+      }
+      i = i+1;
+    }
+    temp = temp.join("<p>");
+    temp = temp.replace(/<blockquote>/g,"<blockquote><pre>");
+    temp = temp.replace(/<\/blockquote>/g,"</pre></blockquote>");
+    updateDOM("bookinner",function(){
+      this.innerHTML = temp;
+      if (p) {
+        var elements = this.getElementsByTagName("p");
+        elements[p].scrollIntoView(true);
+      }
+    });
+  }
+  
+  function loadAudioFile(bookid,file){
+    function setAudioFileRef(toc,file) {
+      var l = toc.length;
+      var i = 0;
+      while (toc[i].file !== file) {
+        i++;
+      }
+      readDOM("player",function(){
+        if (this.plyr.media.src !== toc[i].audio) {
+          this.plyr.source(toc[i].audio);      
+        }
+      });
+    }
+  
+    var toc = window.state.booklist[bookid].toc;
+    setAudioFileRef(toc,file);
+  }
+  
+  function isElementInViewport (el) {
+
+    var rect = el.getBoundingClientRect();
+
+    return rect.top >= 0 ;
+}
+  
+  function bookmark() {
+    window.bookmarking = true;
+    readDOM("bookinner",function(){
+      var scroll = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+      var elements = this.getElementsByTagName("p");
+      for (var i=0; i<elements.length; i++) {
+          el = elements[i];
+          if (isElementInViewport(el)){
+            document.location.hash=document.location.hash.split("?")[0] + "?p=" + i;
+            break;
+          }
+      }
+    });
+  }
+  
+</script>  
+  
+</body>
+</html>
