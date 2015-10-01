@@ -38,7 +38,7 @@
       src: url(fonts/EileenCaps-Regular.ttf);
       font-weight:400;
     }
-    
+        
     /*UTILITIES*/
     
     .off-down {
@@ -49,11 +49,6 @@
     .off-right {
       transform: translate3d(100%, 0, 0);
       -webkit-transform: translate3d(100%, 0, 0);
-    }
-    
-    .slideIn {
-      transform: translate3d(0, 0, 0);
-      -webkit-transform: translate3d(0, 0, 0);
     }
     
     .dropcap { 
@@ -150,22 +145,6 @@
       overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
     }
-/*
-    .content-wrapper {
-      margin-top:3rem;
-      padding: 1em 0.7em 2em;
-      height: 100vh;
-      width: 100%;
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
-      position:absolute;      
-      will-change: transform;      
-      transition: -webkit-transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-      transition: transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946);
-      top: 0;
-      bottom: 2em;
-    }
-*/
     
     @media (min-width: 30em) and (max-width: 1200px) {
       .content-wrapper {
@@ -323,23 +302,10 @@
       }
     }
     
-    #player-toggle:checked ~ nav > #nav-right {
+    .nav-item-selected {
       background: #A24B54;
       color: #fff;
-      fill: #CBD0D3;
-    }
-
-    #book-nav-toggle:checked ~ nav > #nav-center {
-      background: #A24B54;
-      color: #fff;
-    }
-
-    #player-toggle:checked ~ #audio-player-container {
-      transform: translate3d(0,0,0);
-    }
-
-    #book-nav-toggle:checked ~ #book-nav {
-      transform: translate3d(0,0,0);
+      fill: #CBD0D3;    
     }
 
     #nav-center > label {
@@ -399,7 +365,7 @@
       font-size: 12px;
     }
 
-    #book-nav-toggle:checked ~ #book-nav-overlay,#player-toggle:checked ~ #player-overlay{
+    .overlay-visible {
       position: fixed;
       top: 0;
       left: 0;
@@ -411,7 +377,7 @@
     }
 
     .overlay {
-      position: absolute;
+      position: fixed;
     }
 
     #book-nav {
@@ -440,7 +406,6 @@
     
     #book-inner {
       z-index:3;
-      /*background: #fff;*/
       background: #FFFAF2;
     }
     
@@ -452,33 +417,18 @@
       text-align:center;      
     }
     
-    @media (max-width: 979px) and (-webkit-min-device-pixel-ratio: 1.5) {
-        body {
-            -webkit-animation: bugfix infinite 1s;
-        }
+    .slide-in {
+      transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
     }
-
-    @supports (-webkit-animation-name: bugfix) {
-        body {
-            -webkit-animation: none;
-        }
-    }
-    @-webkit-keyframes bugfix {
-        from {
-            margin: 0;
-        }
-
-        to {
-            margin: 0;
-        }
-    }
+    
 
   </style>
 </head>
 
 <body>
-  <input id="book-nav-toggle" type="checkbox" class="invisible" disabled onclick='uncheck(window.ui.playertoggle)'>
-  <input id="player-toggle" type="checkbox" class="invisible" onclick='uncheck(window.ui.booknavtoggle)'>
+  <input id="book-nav-toggle" type="checkbox" class="invisible" disabled>
+  <input id="player-toggle" type="checkbox" class="invisible">
   <nav id="nav" class="">
     <div id="nav-left" class=""><a href="#"><img src="img/home.png" width=30 alt="Home"></a></div>
     <div id="nav-center" class="">
@@ -501,7 +451,7 @@
       </audio>
     </div>  
   </div>
-  <ul id="book-nav" onclick='uncheck(window.ui.booknavtoggle)' class="subnav"></ul>
+  <ul id="book-nav" class="subnav"></ul>
   <div id="book-list-c" class="container">
     <div id="book-list" class="content-wrapper"></div>
   </div>
@@ -653,6 +603,10 @@
   function updateDOM(ref,fn) {
     fastdom.write(fn,window.ui[ref]);      
   }
+  
+  function updateDOMel(el,fn) {
+    fastdom.write(fn,el);
+  }
 
   function addToHash(str) {
     location.hash = location.hash + str
@@ -796,16 +750,103 @@
     window.ui.booklist = document.getElementById("book-list");
     window.ui.booktoc = document.getElementById("book-toc");
     window.ui.bookinner = document.getElementById("book-inner");
-    window.ui.booklistC = document.getElementById("book-list-c");
     window.ui.booktocC = document.getElementById("book-toc-c");
     window.ui.bookinnerC = document.getElementById("book-inner-c");
     window.ui.pagetotal = document.getElementById("page-total");
-    window.ui.playertoggle = document.getElementById("player-toggle")
-    window.ui.playertogglelabel = document.getElementById("player-toggle-label")
-    window.ui.booknavtoggle = document.getElementById("book-nav-toggle");
-    window.ui.booknav = document.getElementById("book-nav");
-    window.ui.player = document.getElementById("audio-player");
     window.animating = []
+    
+    window.booknav = (function() {
+      var overlay = document.getElementById("book-nav-overlay");
+      var navitem = document.getElementById("nav-center");
+      var booknav = document.getElementById("book-nav");
+      var booknavtoggle = document.getElementById("book-nav-toggle");
+      return {update: function(html) {                
+                updateDOMel(booknav,function(){this.innerHTML = html;});
+              },
+              show: function() {
+                updateDOMel(booknavtoggle,function(){this.checked = true;});
+                updateDOMel(overlay,function(){addClass(this,"overlay-visible");});
+                updateDOMel(navitem,function(){addClass(this,"nav-item-selected");});
+                updateDOMel(booknav,function(){addClass(booknav,"slide-in");});
+              },
+              hide: function() {
+                updateDOMel(booknavtoggle,function(){this.checked = false;});
+                updateDOMel(overlay,function(){removeClass(this,"overlay-visible");});
+                updateDOMel(navitem,function(){removeClass(navitem,"nav-item-selected");});
+                updateDOMel(booknav,function(){removeClass(booknav,"slide-in");});
+              },
+              disable: function() {
+                updateDOMel(booknavtoggle,function(){this.disabled = true;});
+              },
+              enable: function() {
+                updateDOMel(booknavtoggle,function(){this.disabled = false;});
+              }
+      }    
+    })()
+    
+    window.player = (function() {
+      var overlay = document.getElementById("player-overlay");
+      var navitem = document.getElementById("nav-right");
+      var playerContainer = document.getElementById("audio-player-container");
+      var playertogglelabel = document.getElementById("player-toggle-label");
+      var player = document.getElementById("audio-player");
+      return {update: function(html) {                
+                updateDOMel(booknav,function(){this.innerHTML = html;});
+              },
+              show: function() {
+                updateDOMel(overlay,function(){addClass(this,"overlay-visible");});
+                updateDOMel(navitem,function(){addClass(this,"nav-item-selected");});
+                updateDOMel(playerContainer,function(){addClass(playerContainer,"slide-in");});
+              },
+              hide: function() {
+                updateDOMel(overlay,function(){removeClass(this,"overlay-visible");});
+                updateDOMel(navitem,function(){removeClass(navitem,"nav-item-selected");});
+                updateDOMel(playerContainer,function(){removeClass(playerContainer,"slide-in");});
+              },
+              disable: function() {
+                updateDOMel(playertogglelabel,function(){addClass(this,"hidden");});
+              },
+              enable: function() {
+                updateDOMel(playertogglelabel,function(){removeClass(this,"hidden");});
+              },
+              getSource: function() {
+                return player.plyr.media.src
+              },
+              setSource: function(src) {
+                player.plyr.source(src)              
+              },
+              isPlaying: function() {
+                return player.plyr.media.currentTime !== 0
+              }
+      }    
+    })()  
+    
+    //
+    //Navigation handling
+    //  
+    
+    document.getElementById("book-nav").addEventListener('click',function(){
+      window.booknav.hide();
+    });
+    
+    document.getElementById("book-nav-toggle").addEventListener('click',function(){
+      window.player.hide();
+      if (this.checked) {
+        window.booknav.show();
+      }
+      else {
+        window.booknav.hide();
+      }
+    });
+    document.getElementById("player-toggle").addEventListener('click',function(){
+      window.booknav.hide();
+      if (this.checked) {
+        window.player.show();
+      }
+      else {
+        window.player.hide();
+      }
+    });
     //
     //ROUTER
     //
@@ -827,9 +868,9 @@
 
     // Default route
     window.router.add('', function () {    
-      window.state.page = "booklist";   
-      uncheck(window.ui.playertoggle);
-      uncheck(window.ui.booknavtoggle);
+      window.state.page = "booklist"; 
+      window.booknav.hide();
+      window.player.hide();
       displayBookList(Object.keys(window.state.booklist));
       updatePageTitle();
     });
@@ -845,7 +886,7 @@
       window.loading = new Promise(function(resolve,reject) {
         window.state.page = "bookchapter";
         window.state.selectedbook = r.params.id;
-        updateDOM("booknavtoggle",function(){this.disabled = false;})
+        window.booknav.enable();
         getTOC(r.params.id).then(function (toc) {
           loadBookNav(r.params.id,r.params.idx);
           loadBookChapter(r.params.id,toc[r.params.idx-1].file).then(function(data){displayBookChapter(data,r.params.p)})
@@ -884,18 +925,18 @@
         case "booklist":
           switch (oldpage) {
             default:
-              updateDOM("booktocC",function(){removeClass(this,"slideIn");});
+              updateDOM("booktocC",function(){removeClass(this,"slide-in");});
               break;
           }
           break;
         case "book":
-          animate("booktocC","slideIn","a");
+          animate("booktocC","slide-in","a");
           break;
         case "bookchapter":
           switch(oldpage) {
             default:
-              animate("bookinnerC","slideIn","a");  
-              updateDOM("playertogglelabel",function(){removeClass(this,"hidden");});
+              animate("bookinnerC","slide-in","a");  
+              window.player.enable();
               updateDOM("pagetotal",function(){removeClass(this,"hidden");});
           }
           break;
@@ -910,16 +951,14 @@
         break;
       case "bookchapter":
         if (newpage !== "bookchapter") {
-          readDOM("player",function(){
-            if(this.plyr.media.currentTime === 0) {
-              updateDOM("playertogglelabel",function(){addClass(this,"hidden");});
-            }
-          });
-          updateDOM("pagetotal",function(){addClass(this,"hidden");});          
-          updateDOM("booknavtoggle",function(){this.disabled = true;});
+          if(!window.player.isPlaying()) {
+            window.player.disable();
+          }
+          updateDOM("pagetotal",function(){addClass(this,"hidden");});
+          window.booknav.disable();
         }
         updateDOM("bookinner",function(){this.scrollTop=0;});
-        animate("bookinnerC","slideIn","r");
+        animate("bookinnerC","slide-in","r");
         break;    
     }
     if (window.loading !== null && window.loading !== undefined) {
@@ -959,7 +998,7 @@
       displaylist.push("<li><a href='" + list[i][1] + "'>" + list[i][0] + "</a></li>");
     }
     displaylist.push("<li onclick='bookmark()'><span>Bookmark</span></li>");
-    updateDOM("booknav",function(){this.innerHTML = displaylist.join('');});
+    window.booknav.update(displaylist.join(''));
   }
   
   function getBookAttribute(id,attribute) {
@@ -1069,11 +1108,9 @@
       while (toc[i].file !== file) {
         i++;
       }
-      readDOM("player",function(){
-        if (this.plyr.media.src !== toc[i].audio) {
-          this.plyr.source(toc[i].audio);      
-        }
-      });
+      if (window.player.getSource() !== toc[i].audio) {
+        window.player.setSource(toc[i].audio);
+      }
     }
   
     var toc = window.state.booklist[bookid].toc;
