@@ -451,6 +451,27 @@
       color: #444;
       text-align:center;      
     }
+    
+    @media (max-width: 979px) and (-webkit-min-device-pixel-ratio: 1.5) {
+        body {
+            -webkit-animation: bugfix infinite 1s;
+        }
+    }
+
+    @supports (-webkit-animation-name: bugfix) {
+        body {
+            -webkit-animation: none;
+        }
+    }
+    @-webkit-keyframes bugfix {
+        from {
+            margin: 0;
+        }
+
+        to {
+            margin: 0;
+        }
+    }
 
   </style>
 </head>
