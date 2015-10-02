@@ -535,16 +535,26 @@
       var request = new XMLHttpRequest();
       request.open('GET', url, true);
 
-      request.onload = function() {
-        if (request.status >= 200 && request.status < 400) {
-          // Success!
-          var data = JSON.parse(request.responseText);
-          resolve(data);
-        } else {
-          // We reached our target server, but it returned an error
+
+      request.onreadystatechange = function() {
+        if (request.readyState != 4)  { 
           reject();
+          return; 
         }
+
+        var data = JSON.parse(xml.responseText);
+        resolve(data);
       };
+      //~ request.onload = function() {
+        //~ if (request.status >= 200 && request.status < 400) {
+          //~ // Success!
+          //~ var data = JSON.parse(request.responseText);
+          //~ resolve(data);
+        //~ } else {
+          //~ // We reached our target server, but it returned an error
+          //~ reject();
+        //~ }
+      //~ };
 
       request.onerror = function() {
         // There was a connection error of some sort
