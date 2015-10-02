@@ -510,7 +510,6 @@
       }
   })(document,"img/sprite.svg");
   </script>
-<!--
   <script src="libraries/rlite.min.js"></script>
   <script src="libraries/fastdom.min.js"></script>
   <script src="libraries/plyr.js"></script>
@@ -518,8 +517,9 @@
   <script src="libraries/promiz.min.js"></script>
   <script src="libraries/mustache.min.js"></script>
   <script src="libraries/fastclick.min.js"></script>
--->
+<!--
   <script src="libraries/libraries.js"></script>
+-->
   <script>plyr.setup({"controls":["restart", "rewind", "play", "fast-forward", "current-time", "duration", "mute", "volume"]});</script>
 <script>
   //-----------------
@@ -744,8 +744,6 @@
   //
   ready(function() {
   
-    try{
-  
     if ('addEventListener' in document) {
         document.addEventListener('DOMContentLoaded', function() {
             FastClick.attach(document.body);
@@ -939,10 +937,6 @@
     }
 
     window.addEventListener('hashchange', processHash);
-    }
-    catch (err) {
-      alert(err.message);
-    }      
     
   });
   
