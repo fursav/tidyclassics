@@ -436,14 +436,14 @@
 <body>
   <input id="book-nav-toggle" type="checkbox" class="invisible" disabled>
   <input id="player-toggle" type="checkbox" class="invisible">
-  <nav id="nav" class="">
-    <div id="nav-left" class=""><a href="#"><img src="img/home.png" width=30 alt="Home"></a></div>
-    <div id="nav-center" class="">
+  <nav id="nav">
+    <div id="nav-left"><a href="#"><img src="img/home.png" width=30 alt="Home"></a></div>
+    <div id="nav-center">
       <label id="book-nav-toggle-label" for="book-nav-toggle">
         <span id="page-title">Tidy Classics</span><span id="page-total" class="hidden"></span>
       </label>
     </div>
-    <div id="nav-right" class=""><label id="player-toggle-label" for="player-toggle" class="hidden"><svg class="img-center"><use xlink:href="#icon-volume"></use></svg></label></div>
+    <div id="nav-right"><label id="player-toggle-label" for="player-toggle" class="hidden"><svg class="img-center"><use xlink:href="#icon-volume"></use></svg></label></div>
   </nav>
   <label id="player-overlay" for="player-toggle" class="overlay"></label>
   <label id="book-nav-overlay" for="book-nav-toggle" class="overlay"></label>
@@ -538,15 +538,6 @@
       var request = new XMLHttpRequest();
       request.open('GET', url, true);
 
-//~ 
-      //~ request.onreadystatechange = function() {
-        //~ if (request.readyState != 4)  { 
-          //~ return; 
-        //~ }
-        //~ 
-        //~ var data = JSON.parse(request.responseText);
-        //~ resolve(data);
-      //~ };
       request.onload = function() {
         if (request.status >= 200 && request.status < 400) {
           // Success!
@@ -751,8 +742,6 @@
   //  }
   //
   ready(function() {
-    
-    try {
   
     if ('addEventListener' in document) {
         document.addEventListener('DOMContentLoaded', function() {
@@ -947,10 +936,6 @@
     }
 
     window.addEventListener('hashchange', processHash);
-    }
-    
-    catch(err) {
-      alert(err.message);
     }
     
   });
