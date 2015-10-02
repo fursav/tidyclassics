@@ -537,7 +537,6 @@
 
 
       request.onreadystatechange = function() {
-        console.log(request.readyState);
         if (request.readyState != 4)  { 
           return; 
         }
@@ -749,6 +748,8 @@
   //  }
   //
   ready(function() {
+    
+    try {
   
     if ('addEventListener' in document) {
         document.addEventListener('DOMContentLoaded', function() {
@@ -927,6 +928,11 @@
     }
 
     window.addEventListener('hashchange', processHash);
+    }
+    
+    catch(err) {
+      alert(err.message);
+    }
     
   });
   
