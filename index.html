@@ -542,7 +542,7 @@
           return; 
         }
 
-        var data = JSON.parse(xml.responseText);
+        var data = JSON.parse(request.responseText);
         resolve(data);
       };
       //~ request.onload = function() {
