@@ -759,7 +759,23 @@
             FastClick.attach(document.body);
         }, false);
     }
+    
     window.viewport = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    
+    
+    var els = document.body.querySelectorAll(".container");
+    var height = parseInt(Math.max(document.documentElement.clientHeight, window.innerHeight || 0), 10);
+    for (var i=0,l=els.length;i<l;i++) {
+      var elem = els[i]
+      var compStyle = parseInt((window.getComputedStyle ?
+                                getComputedStyle(elem, null) :
+                                elem.currentStyle)['height'], 10);
+      if (height !== compStyle) {
+        elem.style.height = height + "px";
+      }
+    }
+    
+    
     window.ui = {}
     window.state = {
       booklist: {}
