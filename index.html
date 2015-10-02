@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
 
-  <title>Interactive Classics</title>
+  <title>Tidy Classics</title>
   <meta name="description" content="">
   <meta name="author" content="">
   <meta name="viewport" content="width=device-width,height=device-height,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
@@ -113,6 +113,10 @@
     
     *, *:before, *:after {
       box-sizing: inherit;
+    }
+    
+    * {
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
     }
     
     body {
@@ -506,19 +510,16 @@
       }
   })(document,"img/sprite.svg");
   </script>
+<!--
   <script src="libraries/rlite.min.js"></script>
   <script src="libraries/fastdom.min.js"></script>
   <script src="libraries/plyr.js"></script>
   <script src="libraries/showdown.min.js"></script>
-<!--
-  <script src="promiz.min.js"></script>
--->
   <script src="libraries/lie.min.js"></script>
   <script src="libraries/mustache.min.js"></script>
   <script src="libraries/fastclick.min.js"></script>
-<!--
-  <script src="libraries/libraries.js"></script>
 -->
+  <script src="libraries/libraries.js"></script>
   <script>plyr.setup({"controls":["restart", "rewind", "play", "fast-forward", "current-time", "duration", "mute", "volume"]});</script>
 <script>
   //-----------------
