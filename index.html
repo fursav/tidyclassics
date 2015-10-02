@@ -443,14 +443,14 @@
   <nav id="nav">
     <div id="nav-left"><a href="#"><img src="img/home.png" width=30 alt="Home"></a></div>
     <div id="nav-center">
-      <label id="book-nav-toggle-label" for="book-nav-toggle">
+      <label id="book-nav-toggle-label" for="book-nav-toggle" onclick>
         <span id="page-title">Tidy Classics</span><span id="page-total" class="hidden"></span>
       </label>
     </div>
-    <div id="nav-right"><label id="player-toggle-label" for="player-toggle" class="hidden"><svg class="img-center"><use xlink:href="#icon-volume"></use></svg></label></div>
+    <div id="nav-right"><label id="player-toggle-label" for="player-toggle" class="hidden" onclick><svg class="img-center"><use xlink:href="#icon-volume"></use></svg></label></div>
   </nav>
-  <label id="player-overlay" for="player-toggle" class="overlay"></label>
-  <label id="book-nav-overlay" for="book-nav-toggle" class="overlay"></label>
+  <label id="player-overlay" for="player-toggle" class="overlay" onclick></label>
+  <label id="book-nav-overlay" for="book-nav-toggle" class="overlay" onclick></label>
   <div id="audio-player-container" class="subnav">
     <div id="audio-player" class="player">
       <audio controls>
