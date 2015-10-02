@@ -744,6 +744,8 @@
   //
   ready(function() {
   
+    try {
+  
     if ('addEventListener' in document) {
         document.addEventListener('DOMContentLoaded', function() {
             FastClick.attach(document.body);
@@ -937,7 +939,10 @@
     }
 
     window.addEventListener('hashchange', processHash);
-    
+    }
+    catch(err) {
+      alert(err.message);
+      }
   });
   
   function updateTransitions(oldpage) {
