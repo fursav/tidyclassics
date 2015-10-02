@@ -744,7 +744,7 @@
   //
   ready(function() {
   
-    try {
+    try{
   
     if ('addEventListener' in document) {
         document.addEventListener('DOMContentLoaded', function() {
@@ -892,11 +892,6 @@
       }
     }).then(function () {
       processHash();
-      }
-    catch (err) {
-      alert(err.message);
-    }  
-      
     })
 
     // Default route
@@ -944,6 +939,11 @@
     }
 
     window.addEventListener('hashchange', processHash);
+    }
+    catch (err) {
+      alert(err.message);
+    }      
+    
   });
   
   function updateTransitions(oldpage) {
