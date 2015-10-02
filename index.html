@@ -537,11 +537,11 @@
 
 
       request.onreadystatechange = function() {
+        console.log(request.readyState);
         if (request.readyState != 4)  { 
-          reject();
           return; 
         }
-
+        
         var data = JSON.parse(request.responseText);
         resolve(data);
       };
