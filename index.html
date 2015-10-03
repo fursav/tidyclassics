@@ -452,6 +452,10 @@
       -webkit-transform: translate3d(0, 0, 0);
     }
     
+    progress.player-progress-buffer > span {
+      display:none;
+    }
+    
 
   </style>
 </head>
@@ -475,10 +479,10 @@
     <div id="audio-player" class="player">
       <audio id="audio-el" controls>
           <!-- Audio files -->
-          <source id="audio-src" src="http://ia802305.us.archive.org/31/items/merry_adventures_robin_hood_librivox/robinhood_01_pyle_64kb.mp3" type="audio/mpeg">
+          <source id="audio-src" src="" type="audio/mpeg">
 
           <!-- Fallback for browsers that don't support the <audio> element -->
-          <a href="">Download</a>
+          <a id="audio-fallback" href="">Download</a>
       </audio>
     </div>  
   </div>
@@ -533,18 +537,14 @@
   </script>
   <script src="libraries/rlite.min.js"></script>
   <script src="libraries/fastdom.min.js"></script>
-<!--
   <script src="libraries/plyr.js"></script>
--->
   <script src="libraries/showdown.min.js"></script>
   <script src="libraries/promiz.min.js"></script>
   <script src="libraries/mustache.min.js"></script>
 <!--
   <script src="libraries/libraries.js"></script>
 -->
-<!--
   <script>plyr.setup({"controls":["restart", "rewind", "play", "fast-forward", "current-time", "duration", "mute", "volume"]});</script>
--->
 <script>
   //-----------------
   // TOOLS
@@ -866,13 +866,13 @@
                 updateDOMel(playertogglelabel,function(){removeClass(this,"hidden");});
               },
               getSource: function() {
-                return player.plyr.media.src
+                return player.plyr.media.src;
               },
               setSource: function(src) {
-                player.plyr.source(src)              
+                player.plyr.source(src);          
               },
               isPlaying: function() {
-                return player.plyr.media.currentTime !== 0
+                return player.plyr.media.currentTime !== 0;
               }
       }    
     })()  
@@ -903,32 +903,6 @@
         window.player.hide();
       }
     });
-    
-    document.getElementById("audio-player").addEventListener("click",function(e) {
-      alert(document.getElementById("audio-src").error);
-    });
-    
-    document.getElementById("audio-src").addEventListener('error', function failed(e) {
-     // audio playback failed - show a message saying why
-     // to get the source of the audio element use $(this).src
-     switch (e.target.error.code) {
-       case e.target.error.MEDIA_ERR_ABORTED:
-         alert('You aborted the video playback.');
-         break;
-       case e.target.error.MEDIA_ERR_NETWORK:
-         alert('A network error caused the audio download to fail.');
-         break;
-       case e.target.error.MEDIA_ERR_DECODE:
-         alert('The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.');
-         break;
-       case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-         alert('The video audio not be loaded, either because the server or network failed or because the format is not supported.');
-         break;
-       default:
-         alert('An unknown error occurred.');
-         break;
-       }
-     }, true);
     
     //
     //ROUTER
@@ -1033,9 +1007,9 @@
         break;
       case "bookchapter":
         if (newpage !== "bookchapter") {
-          //~ if(!window.player.isPlaying()) {
-            //~ window.player.disable();
-          //~ }
+          if(!window.player.isPlaying()) {
+            window.player.disable();
+          }
           updateDOM("pagetotal",function(){addClass(this,"hidden");});
           window.booknav.disable();
         }
@@ -1188,9 +1162,9 @@
       while (toc[i].file !== file) {
         i++;
       }
-      //~ if (window.player.getSource() !== toc[i].audio) {
-        //~ window.player.setSource(toc[i].audio);
-      //~ }
+      if (window.player.getSource() !== toc[i].audio) {
+        window.player.setSource(toc[i].audio);
+      }
     }
   
     var toc = window.state.booklist[bookid].toc;
