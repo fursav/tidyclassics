@@ -111,7 +111,7 @@
       box-sizing: border-box;
       font-family: LibreBaskerville;
       height:100%;
-      position: relative;
+      /*position: relative;*/
       /*background: #ddd;*/
     }
     
@@ -125,15 +125,24 @@
     }
     
     body {
-      background: #FFFDDF;
+      /*background: #FFFDDF;
       color: #333;
-      overflow:hidden;
+      overflow:hidden;*/
+      position:relative;
     }
     
     @media (max-width: 30em) {
       body {
         font-size: 14px;
       }
+    }
+    
+    #body-wrapper {
+      background: #FFFDDF;
+      color: #333;
+      overflow:hidden;  
+      position:relative;
+      height:100vh;
     }
     
     .container {
@@ -447,6 +456,7 @@
 </head>
 
 <body>
+  <div id="body-wrapper">
   <input id="book-nav-toggle" type="checkbox" class="invisible" disabled>
   <input id="player-toggle" type="checkbox" class="invisible">
   <nav id="nav">
@@ -480,6 +490,7 @@
   </div>
   <div id="book-inner-c" class="container off-down">
     <div id="book-inner" class="content-wrapper"></div> 
+  </div>
   </div>
   <script id="book-list-template" type="x-tmpl-mustache">
   <ul>
@@ -723,6 +734,15 @@
     return window.viewport < 460;
   }
   
+  function convertVH(elem) {
+    var compStyle = parseInt((window.getComputedStyle ?
+                              getComputedStyle(elem, null) :
+                              elem.currentStyle)['height'], 10);
+    if (window.viewportHeight !== compStyle) {
+      elem.style.height = window.viewportHeight + "px";
+    }
+  }
+  
   //--------------
   // APP
   //--------------
@@ -763,19 +783,15 @@
     }
     
     window.viewport = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    window.viewportHeight = parseInt(Math.max(document.documentElement.clientHeight, window.innerHeight || 0), 10)
     
     
     var els = document.body.querySelectorAll(".container");
-    var height = parseInt(Math.max(document.documentElement.clientHeight, window.innerHeight || 0), 10);
     for (var i=0,l=els.length;i<l;i++) {
       var elem = els[i]
-      var compStyle = parseInt((window.getComputedStyle ?
-                                getComputedStyle(elem, null) :
-                                elem.currentStyle)['height'], 10);
-      if (height !== compStyle) {
-        elem.style.height = height + "px";
-      }
+      convertVH(elem);
     }
+    convertVH(document.getElementById("body-wrapper"));
     
     
     window.ui = {}
