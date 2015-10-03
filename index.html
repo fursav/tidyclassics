@@ -904,6 +904,10 @@
       }
     });
     
+    document.getElementById("audio-player").addEventListener("click",function(e) {
+      alert(document.getElementById("audio-src").error);
+    });
+    
     document.getElementById("audio-src").addEventListener('error', function failed(e) {
      // audio playback failed - show a message saying why
      // to get the source of the audio element use $(this).src
