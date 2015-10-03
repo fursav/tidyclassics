@@ -475,7 +475,7 @@
     <div id="audio-player" class="player">
       <audio id="audio-el" controls>
           <!-- Audio files -->
-          <source src="http://ia802305.us.archive.org/31/items/merry_adventures_robin_hood_librivox/robinhood_01_pyle_64kb.mp3" type="audio/mpeg">
+          <source id="audio-src" src="http://ia802305.us.archive.org/31/items/merry_adventures_robin_hood_librivox/robinhood_01_pyle_64kb.mp3" type="audio/mpeg">
 
           <!-- Fallback for browsers that don't support the <audio> element -->
           <a href="">Download</a>
@@ -904,7 +904,7 @@
       }
     });
     
-    document.getElementById("audio-el").addEventListener('error', function failed(e) {
+    document.getElementById("audio-src").addEventListener('error', function failed(e) {
      // audio playback failed - show a message saying why
      // to get the source of the audio element use $(this).src
      switch (e.target.error.code) {
