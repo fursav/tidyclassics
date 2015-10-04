@@ -225,7 +225,7 @@ striking up a deafening air, when the pyramid tottered, the balance was
 lost, one of the lower noses vanished from the pyramid, and the human
 monument was shattered like a castle built of cards!
 
-![The monumument collapsed like a castle of cards][2]
+![The monument collapsed like a castle of cards][2]
 
 It was Passepartout's fault.  Abandoning his position, clearing the
 footlights without the aid of his wings, and, clambering up to the
@@ -248,6 +248,7 @@ At half-past six, the very hour of departure, Mr. Fogg and Aouda,
 followed by Passepartout, who in his hurry had retained his wings, and
 nose six feet long, stepped upon the American steamer.
 
+![Followed by Passepartout with the wings on his back][3]
 
 [1]: source/verne_80days/img/32.jpg
 [2]: source/verne_80days/img/33.jpg

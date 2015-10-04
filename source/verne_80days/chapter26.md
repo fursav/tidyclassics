@@ -179,4 +179,4 @@ Humboldt Range, and half-past nine when it penetrated Utah, the region
 of the Great Salt Lake, the singular colony of the Mormons.
 
 [1]: source/verne_80days/img/37.jpg
-[1]: source/verne_80days/img/38.jpg
+[2]: source/verne_80days/img/38.jpg
