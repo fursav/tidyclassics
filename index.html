@@ -38,6 +38,12 @@
       src: url(fonts/EileenCaps-Regular.ttf);
       font-weight: 400;
     }
+    
+    @font-face {
+      font-family: ZallmanCaps;
+      src: url(fonts/ZallmanCaps.ttf);
+      font-weight: 400;
+    }
     /*UTILITIES*/
     
     .off-down {
@@ -56,7 +62,14 @@
       float: left;
       font-size: 5em;
       padding: 0.4em 0;
-      font-family: EileenCaps;
+    }
+    
+    .eileen {
+      font-family: EileenCaps;    
+    }
+    
+    .zallman {
+      font-family: ZallmanCaps;    
     }
     
     .hidden {
@@ -274,6 +287,7 @@
       display: table;
       table-layout: fixed;
       width: 100%;
+      margin: 10px 0;
     }
     
     .book-info-left {
@@ -302,6 +316,8 @@
     
     #toc-list {
       list-style-type: upper-roman;
+      -webkit-padding-start: 60px;
+      -moz-padding-start: 60px;
     }
     
     #toc-list li {
@@ -439,11 +455,14 @@
     }
     
     #book-inner h2 {
-      font-family: Sherwood;
       letter-spacing: 1px;
       font-size: 2em;
       color: #444;
       text-align: center;
+    }
+    
+    #book-inner.sherwood h2 {    
+      font-family: Sherwood;
     }
     
     .slide-in {
@@ -455,6 +474,21 @@
     progress.player-progress-buffer > span {
       display: none;
     }
+    
+    #autoplay {
+      color: #ddd;
+      padding: 1rem 0;
+    }
+    
+    #autoplay span {
+      padding: 0 10px;
+    }
+    
+    #autoplay-state {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    
   </style>
 </head>
 
@@ -483,6 +517,9 @@
     <label id="book-nav-overlay" for="book-nav-toggle" class="overlay" onclick></label>
     <div id="audio-player-container" class="subnav">
       <div id="audio-player" class="player">
+        <div id="autoplay">
+          <span>Autoplay</span><span id="autoplay-state"></span>
+        </div>
         <audio id="audio-el" controls>
           <!-- Audio files -->
           <source id="audio-src" src="" type="audio/mpeg">
@@ -621,6 +658,9 @@
     }
 
     function addClass(el, className) {
+      if (className == "") {
+        return
+      }
       if (el.classList)
         el.classList.add(className);
       else
@@ -628,6 +668,9 @@
     }
 
     function removeClass(el, className) {
+      if (className == "") {
+        return
+      }
       if (el.classList)
         el.classList.remove(className);
       else
@@ -636,6 +679,9 @@
     }
 
     function hasClass(el, className) {
+      if (className == "") {
+        return
+      }
       if (el.classList)
         return el.classList.contains(className);
       else
@@ -788,7 +834,8 @@
     //            ...
     //           },
     //    page: (string),
-    //    selectedbook: (string)
+    //    selectedbook: (string),
+    //    currentChapter: (string)
     //  }
     //
     ready(function() {
@@ -808,7 +855,8 @@
 
       window.ui = {};
       window.state = {
-        booklist: {}
+        booklist: {},
+        autoplay: false
       };
       window.bookmarking = false;
       window.animating = [];
@@ -876,11 +924,42 @@
       })();
 
       window.player = (function() {
+      
         var overlay = document.getElementById("player-overlay");
         var navitem = document.getElementById("nav-right");
         var playerContainer = document.getElementById("audio-player-container");
         var playertogglelabel = document.getElementById("player-toggle-label");
         var player = document.getElementById("audio-player");
+        var autoplay = document.getElementById("autoplay-state");        
+      
+        function updateAutoEl() {
+          updateDOMel(autoplay, function() {
+            if (window.state.autoplay) {
+              this.innerHTML = "ON";
+            }
+            else {
+              this.innerHTML = "OFF";
+            }
+          });
+        }
+        
+        autoplay.addEventListener("click", function() {
+          window.state.autoplay = !window.state.autoplay;
+          updateAutoEl();
+        });
+        
+        player.plyr.media.onended = function() {
+          if (window.state.autoplay) {
+            getTOC(window.state.selectedbook)
+            .then(function(toc) {
+              if (window.state.currentChapter < toc.length) {
+                document.location.hash = "#book/" + window.state.selectedbook + "/chapter/" + (window.state.currentChapter + 1)
+              }
+            });
+          }
+        };
+        
+        updateAutoEl();
         return {
           update: function(html) {
             updateDOMel(booknav, function() {
@@ -927,6 +1006,9 @@
           },
           isPlaying: function() {
             return player.plyr.media.currentTime !== 0;
+          },
+          play: function() {
+            player.plyr.play();
           }
         };
       })();
@@ -966,9 +1048,27 @@
       };
 
       loadBookList().then(function(data) {
+        function getFontClass(str) {
+          switch (str) {
+            case "eileen":
+              return "eileen";
+              break;
+            case "sherwood":
+              return "sherwood";
+              break;
+            case "zallman":
+              return "zallman";
+              break;
+            default:
+              return "";
+          }
+        }
+      
         for (var i = 0, l = data.length; i < l; i++) {
           window.state.booklist[data[i].id] = data[i];
           window.state.booklist[data[i].id].displayAuthor = data[i].author[0] + ", " + data[i].author[1];
+          window.state.booklist[data[i].id].dropcapclass = getFontClass(window.state.booklist[data[i].id].dropcap);
+          window.state.booklist[data[i].id].titleclass = getFontClass(window.state.booklist[data[i].id].titlefont);
         }
       }).then(function() {
         processHash();
@@ -994,6 +1094,7 @@
         window.loading = new Promise(function(resolve, reject) {
           window.state.page = "bookchapter";
           window.state.selectedbook = r.params.id;
+          window.state.currentChapter = parseInt(r.params.idx);
           window.booknav.enable();
           getTOC(r.params.id).then(function(toc) {
             loadBookNav(r.params.id, r.params.idx);
@@ -1047,6 +1148,9 @@
           case "bookchapter":
             switch (oldpage) {
               default: animate("bookinnerC", "slide-in", "a");
+              updateDOM("bookinner",function() {
+                addClass(this,getBookAttribute(window.state.selectedbook,"titleclass"));
+              });
               window.player.enable();
               updateDOM("pagetotal", function() {
                 removeClass(this, "hidden");
@@ -1075,7 +1179,10 @@
           updateDOM("bookinner", function() {
             this.scrollTop = 0;
           });
-          animate("bookinnerC", "slide-in", "r");
+          animate("bookinnerC", "slide-in", "r");       
+          updateDOM("bookinner",function() {
+            removeClass(this,getBookAttribute(window.state.selectedbook,"titleclass"));
+          });
           break;
       }
       if (window.loading !== null && window.loading !== undefined) {
@@ -1210,10 +1317,16 @@
         data = data.replace(/([a-zA-Z0-9]+).jpg/g, "$1-md.jpg");
       }
       var temp = converter.makeHtml(data).split("<p>");
+      var dfont = getBookAttribute(window.state.selectedbook, "dropcapclass")
       var i = 1;
       while (i < temp.length) {
         if (temp[i][0] !== "<") {
-          temp[i] = "<span class='dropcap'>" + temp[i][0] + "</span>" + temp[i].slice(1);
+          if (temp[i][0] == '"') {
+            temp[i] = "<span style='float:left;'>&quot;</span>" + "<span class='dropcap " + dfont + "'>" + temp[i][1] + "</span>" + temp[i].slice(2);
+          }
+          else {
+            temp[i] = "<span class='dropcap " + dfont + "'>" + temp[i][0] + "</span>" + temp[i].slice(1);
+          }
           i = temp.length;
         }
         i = i + 1;
@@ -1244,6 +1357,9 @@
 
       var toc = window.state.booklist[bookid].toc;
       setAudioFileRef(toc, file);
+      if (window.state.autoplay) {
+        window.player.play();
+      }
     }
 
     function bookmark() {
