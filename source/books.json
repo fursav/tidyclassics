@@ -5,6 +5,22 @@
     "shortname": "Robin Hood",
     "author": ["Pyle","Howard"],
     "year": 1883,
-    "category": "fantasy"
+    "category": "fantasy",
+    "font":"baskerville",
+    "titlefont":"sherwood",
+    "dropcap":"eileen",
+    "captions":false
+  },
+  {
+    "id": "verne_80days",
+    "name": "Around the World in 80 Days",
+    "shortname": "World in 80 Days",
+    "author": ["Verne","Jules"],
+    "year": 1873,
+    "category": "adventure",
+    "font":"baskerville",
+    "titlefont":"",
+    "dropcap":"zallman",
+    "captions":true
   }
 ]

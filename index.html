@@ -197,7 +197,8 @@
       line-height: 1.5em;
     }
     
-    p img {
+    p img,
+    figure img {
       display: block;
       margin-left: auto;
       margin-right: auto;
@@ -485,8 +486,14 @@
     }
     
     #autoplay-state {
-      border: 1px solid #ddd;
-      padding: 10px;
+      border: 2px solid #ccc;
+      cursor: pointer;
+      width: 3em;
+    }
+    
+    figcaption {
+      text-align: center;
+      font-style: italic;
     }
     
   </style>
@@ -1334,8 +1341,12 @@
       temp = temp.join("<p>");
       temp = temp.replace(/<blockquote>/g, "<blockquote><pre>");
       temp = temp.replace(/<\/blockquote>/g, "</pre></blockquote>");
+      if (getBookAttribute(window.state.selectedbook,"captions")) {
+        temp = temp.replace(/(<img .* alt="(.*?)".*\/>)/g,"<figure>$1<figcaption>$2</figcaption></figure>");
+      }
+      
       updateDOM("bookinner", function() {
-        this.innerHTML = temp;
+        this.innerHTML = temp; 
         if (p) {
           var elements = this.getElementsByTagName("p");
           elements[p].scrollIntoView(true);
