@@ -44,6 +44,18 @@
       src: url(fonts/ZallmanCaps.ttf);
       font-weight: 400;
     }
+    
+    @font-face {
+      font-family: GoudyInitialen;
+      src: url(fonts/GoudyInitialen.ttf);
+      font-weight: 400;
+    }
+    
+    @font-face {
+      font-family: SquareCaps;
+      src: url(fonts/squarecaps.ttf);
+      font-weight: 400;
+    }
     /*UTILITIES*/
     
     .off-down {
@@ -61,17 +73,29 @@
     .dropcap {
       float: left;
       font-size: 5em;
-      padding: 0.4em 0;
+      padding: 0.35em 0 0;
     }
     
     .eileen {
-      font-family: EileenCaps;    
+      font-family: EileenCaps;
     }
     
     .zallman {
       font-family: ZallmanCaps;    
+      padding: 0.6em 0 0;
+      height: 0.7em;
+      line-height: 0;
     }
     
+    .goudycaps {
+      font-family: GoudyInitialen;
+    }
+    
+    .squarecaps {
+      font-family: SquareCaps;
+      height: 0.9em;
+    }
+        
     .hidden {
       display: none !important;
     }
@@ -96,6 +120,7 @@
     
     .book-thumb {
       padding: 0;
+      border-radius: 8px;
     }
     
     .fg-gray {
@@ -1063,6 +1088,12 @@
           switch (str) {
             case "eileen":
               return "eileen";
+              break;
+            case "goudycaps":
+              return "goudycaps";
+              break;
+            case "squarecaps":
+              return "squarecaps"
               break;
             case "sherwood":
               return "sherwood";
