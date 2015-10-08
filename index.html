@@ -525,6 +525,23 @@
       font-style: italic;
     }
     
+    .next-chapter-link {
+      display: block;
+      margin: 50px;
+      padding-top: 25px;
+      padding-bottom: 25px;
+      text-align: center;
+      text-decoration: none;
+      color: #999;
+      border: 1px solid;
+      cursor: pointer;
+    }
+    
+    .next-chapter-link:hover, .next-chapter-link:active {
+      background: #A24B54;
+      color: #CBD0D3;
+    }
+    
   </style>
 </head>
 
@@ -1141,7 +1158,7 @@
           getTOC(r.params.id).then(function(toc) {
             loadBookNav(r.params.id, r.params.idx);
             loadBookChapter(r.params.id, toc[r.params.idx - 1].file).then(function(data) {
-                displayBookChapter(data, r.params.p)
+                displayBookChapter(data, r.params.p, parseInt(r.params.idx));
               })
               .then(resolve)
               .then(updatePageTitle)
@@ -1346,7 +1363,7 @@
       return ajax("source/" + id + "/" + file);
     }
 
-    function displayBookChapter(data, p) {
+    function displayBookChapter(data, p, idx) {
       var converter = new showdown.Converter();
       updateDOM("pagetotal", function() {
         this.innerHTML = Math.round(data.length / (40 * 65)) + " pages";
@@ -1378,6 +1395,11 @@
       temp = temp.replace(/<\/blockquote>/g, "</pre></blockquote>");
       if (getBookAttribute(window.state.selectedbook,"captions")) {
         temp = temp.replace(/(<img .* alt="(.*?)".*\/>)/g,"<figure>$1<figcaption>$2</figcaption></figure>");
+      }
+      
+      var toc = window.state.booklist[window.state.selectedbook].toc;
+      if (window.state.currentChapter < toc.length) {
+        temp = temp + "<a class='next-chapter-link' href='#book/" + window.state.selectedbook + "/chapter/" + (idx + 1).toString() + "'>Next Chapter</a>";
       }
       
       updateDOM("bookinner", function() {
