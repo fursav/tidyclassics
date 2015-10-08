@@ -23,8 +23,25 @@
     
     @font-face {
       font-family: LibreBaskerville;
-      src: url(fonts/LibreBaskerville-Regular.otf);
+      src: url(fonts/librebaskerville-regular-webfont.woff2) format('woff2'),
+           url(fonts/librebaskerville-regular-webfont.woff) format('woff'),
+           url(fonts/librebaskerville-regular-webfont.ttf) format('truetype');
       font-weight: 400;
+    }
+    
+    @font-face {
+      font-family: LibreBaskerville;
+      src: url(fonts/librebaskerville-bold-webfont.woff2) format('woff2'),
+           url(fonts/librebaskerville-bold-webfont.woff) format('woff'),
+           url(fonts/librebaskerville-bold-webfont.ttf) format('truetype');
+      font-weight: bold;
+    }
+    @font-face {
+      font-family: LibreBaskerville;
+      src: url(fonts/librebaskerville-italic-webfont.woff2) format('woff2'),
+           url(fonts/librebaskerville-italic-webfont.woff) format('woff'),
+           url(fonts/librebaskerville-italic-webfont.ttf) format('truetype');
+      font-style: italic;
     }
     
     @font-face {
@@ -145,7 +162,7 @@
     html {
       -moz-box-sizing: border-box;
       box-sizing: border-box;
-      font-family: LibreBaskerville;
+      font-family: LibreBaskerville, serif;
       height: 100%;
       /*position: relative;*/
       /*background: #ddd;*/
@@ -222,7 +239,7 @@
       line-height: 1.5em;
     }
     
-    p:last-child {
+    #book-inner > p:last-child {
       padding-bottom: 100px;
     }
     
@@ -518,6 +535,11 @@
       border: 2px solid #ccc;
       cursor: pointer;
       width: 3em;
+    }
+    
+    figure {
+      margin: 0;
+      padding: 1em 0;
     }
     
     figcaption {
