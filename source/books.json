@@ -22,5 +22,17 @@
     "titlefont":"",
     "dropcap":"zallman",
     "captions":true
+  },
+  {
+    "id": "verne_undersea",
+    "name": "Twenty Thousand Leagues Under The Seas",
+    "shortname": "20,000 Leagues",
+    "author": ["Verne","Jules"],
+    "year": 1875,
+    "category": "adventure",
+    "font":"baskerville",
+    "titlefont":"",
+    "dropcap":"squarecaps",
+    "captions":true
   }
 ]
