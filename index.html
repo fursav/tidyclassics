@@ -63,16 +63,13 @@
     }
     
     @font-face {
-      font-family: GoudyInitialen;
-      src: url(fonts/GoudyInitialen.ttf);
+      font-family: SquareCaps;
+      src: url(fonts/squarecaps-webfont.woff2) format('woff2'),
+           url(fonts/squarecaps-webfont.woff) format('woff'),
+           url(fonts/squarecaps-webfont.ttf) format('truetype');
       font-weight: 400;
     }
     
-    @font-face {
-      font-family: SquareCaps;
-      src: url(fonts/squarecaps.ttf);
-      font-weight: 400;
-    }
     /*UTILITIES*/
     
     .off-down {
@@ -102,10 +99,6 @@
       padding: 0.6em 0 0;
       height: 0.7em;
       line-height: 0;
-    }
-    
-    .goudycaps {
-      font-family: GoudyInitialen;
     }
     
     .squarecaps {
@@ -214,7 +207,7 @@
     
     .content-wrapper {
       padding: 1em 0.7em 2em;
-      height: inherit;
+      height: 100%;
       width: 100%;
       overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
