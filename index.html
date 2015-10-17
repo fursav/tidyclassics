@@ -933,11 +933,37 @@
       window.bookmarking = false;
       window.animating = [];
       //TODO: rewrite this to be their own modules
-      window.ui.title = document.getElementById("page-title");
       window.ui.bookinner = document.getElementById("book-inner");
       window.ui.booktocC = document.getElementById("book-toc-c");
       window.ui.bookinnerC = document.getElementById("book-inner-c");
       window.ui.pagetotal = document.getElementById("page-total");
+
+      window.pagetitle = (function() {
+        var title = document.getElementById("page-title");
+        
+        var getTitle = function() {
+          switch (window.state.page) {
+            case "book":
+              return getBookAttribute(window.state.selectedbook, "shortname");
+            case "bookchapter":
+              return getBookAttribute(window.state.selectedbook, "shortname");
+            default:
+              return "Tidy Classics";
+          }        
+        }
+        
+        var update = function() {
+          updateDOMel(title, function() {
+            document.title = getTitle();
+            this.innerHTML = getTitle();
+          });
+        }
+        
+        return {
+          update: update
+        };
+        
+      })();
 
       window.booknav = (function() {
         var overlay = document.getElementById("book-nav-overlay");
@@ -1242,7 +1268,7 @@
         window.booknav.hide();
         window.player.hide();
         window.booklist.display(Object.keys(window.state.booklist));
-        updatePageTitle();
+        window.pagetitle.update();
       });
 
       window.router.add('book/:id', function(r) {
@@ -1251,7 +1277,7 @@
         getTOC(r.params.id).then(function() {
           window.booktoc.display(r.params.id);
         });
-        updatePageTitle();
+        window.pagetitle.update();
       });
 
       window.router.add('book/:id/chapter/:idx', function(r) {
@@ -1266,7 +1292,7 @@
                 displayBookChapter(data, r.params.p, parseInt(r.params.idx));
               })
               .then(resolve)
-              .then(updatePageTitle)
+              .then(window.pagetitle.update)
               .then(function() {
                 window.player.update(r.params.id,r.params.idx-1);
               });
@@ -1354,23 +1380,6 @@
       } else {
         transitionIn();
       }
-    }
-
-    function updatePageTitle() {
-      function getTitle() {
-        switch (window.state.page) {
-          case "book":
-            return getBookAttribute(window.state.selectedbook, "shortname");
-          case "bookchapter":
-            return getBookAttribute(window.state.selectedbook, "shortname");
-          default:
-            return "Tidy Classics";
-        }
-      }
-      document.title = getTitle();
-      updateDOM("title", function() {
-        this.innerHTML = getTitle();
-      });
     }
 
     function getBookAttribute(id, attribute) {
