@@ -933,9 +933,7 @@
       window.bookmarking = false;
       window.animating = [];
       //TODO: rewrite this to be their own modules
-      window.ui.tocTemplate = document.getElementById("toc-template");
       window.ui.title = document.getElementById("page-title");
-      window.ui.booktoc = document.getElementById("book-toc");
       window.ui.bookinner = document.getElementById("book-inner");
       window.ui.booktocC = document.getElementById("book-toc-c");
       window.ui.bookinnerC = document.getElementById("book-inner-c");
@@ -947,10 +945,25 @@
         var booknav = document.getElementById("book-nav");
         var booknavtoggle = document.getElementById("book-nav-toggle");
         return {
-          update: function(html) {
+          update: function(id,idx) {          
+            idx = parseInt(idx);
+            var list = [
+              ["Table Of Contents", "#book/" + id]
+            ];
+            if (idx > 1) {
+              list.push(["Previous Chapter", "#book/" + id + "/chapter/" + (idx - 1)]);
+            }
+            if (getBookAttribute(id,"toc").length > idx) {
+              list.push(["Next Chapter", "#book/" + id + "/chapter/" + (idx + 1)]);
+            }
+            displaylist = [];
+            for (var i = 0, l = list.length; i < l; i++) {
+              displaylist.push("<li><a href='" + list[i][1] + "'>" + list[i][0] + "</a></li>");
+            }
+            displaylist.push("<li onclick='bookmark()'><span>Bookmark</span></li>");
             updateDOMel(booknav, function() {
-              this.innerHTML = html;
-            });
+              this.innerHTML = displaylist.join('');
+            });            
           },
           show: function() {
             updateDOMel(booknavtoggle, function() {
@@ -1013,6 +1026,70 @@
           });
         }
         
+        var update = function(bookid,idx) {
+        
+          idx = parseInt(idx);
+          var toc = getBookAttribute(bookid,"toc");
+          if (getSource() !== toc[idx].audio) {
+            setSource(toc[idx].audio);
+          }
+          if (window.state.autoplay) {
+            play();
+          }
+        };
+        
+        var show = function() {
+          updateDOMel(overlay, function() {
+            addClass(this, "overlay-visible");
+          });
+          updateDOMel(navitem, function() {
+            addClass(this, "nav-item-selected");
+          });
+          updateDOMel(playerContainer, function() {
+            addClass(playerContainer, "slide-in");
+          });
+        }
+        
+        var hide = function() {
+          updateDOMel(overlay, function() {
+            removeClass(this, "overlay-visible");
+          });
+          updateDOMel(navitem, function() {
+            removeClass(navitem, "nav-item-selected");
+          });
+          updateDOMel(playerContainer, function() {
+            removeClass(playerContainer, "slide-in");
+          });
+        }
+        
+        var disable = function() {
+          updateDOMel(playertogglelabel, function() {
+            addClass(this, "hidden");
+          });
+        }
+        
+        var enable = function() {
+          updateDOMel(playertogglelabel, function() {
+            removeClass(this, "hidden");
+          });
+        }
+        
+        var getSource = function() {
+          return player.plyr.media.src;
+        }
+        
+        var setSource = function(src) {
+          player.plyr.source(src);
+        }
+        
+        var isPlaying = function() {
+          return player.plyr.media.currentTime !== 0;
+        }
+        
+        var play = function() {
+          player.plyr.play();
+        }
+        
         autoplay.addEventListener("click", function() {
           window.state.autoplay = !window.state.autoplay;
           updateAutoEl();
@@ -1031,55 +1108,15 @@
         
         updateAutoEl();
         return {
-          update: function(html) {
-            updateDOMel(booknav, function() {
-              this.innerHTML = html;
-            });
-          },
-          show: function() {
-            updateDOMel(overlay, function() {
-              addClass(this, "overlay-visible");
-            });
-            updateDOMel(navitem, function() {
-              addClass(this, "nav-item-selected");
-            });
-            updateDOMel(playerContainer, function() {
-              addClass(playerContainer, "slide-in");
-            });
-          },
-          hide: function() {
-            updateDOMel(overlay, function() {
-              removeClass(this, "overlay-visible");
-            });
-            updateDOMel(navitem, function() {
-              removeClass(navitem, "nav-item-selected");
-            });
-            updateDOMel(playerContainer, function() {
-              removeClass(playerContainer, "slide-in");
-            });
-          },
-          disable: function() {
-            updateDOMel(playertogglelabel, function() {
-              addClass(this, "hidden");
-            });
-          },
-          enable: function() {
-            updateDOMel(playertogglelabel, function() {
-              removeClass(this, "hidden");
-            });
-          },
-          getSource: function() {
-            return player.plyr.media.src;
-          },
-          setSource: function(src) {
-            player.plyr.source(src);
-          },
-          isPlaying: function() {
-            return player.plyr.media.currentTime !== 0;
-          },
-          play: function() {
-            player.plyr.play();
-          }
+          update: update,
+          show: show,
+          hide: hide,
+          disable: disable,
+          enable: enable,
+          getSource: getSource,
+          setSource: setSource,
+          isPlaying: isPlaying,
+          play: play
         };
       })();
       
@@ -1112,7 +1149,6 @@
         var booktoc = document.getElementById("book-toc");
         return {
           display: function(id) {
-            console.log(id);
             var data = getBookAttribute(id,"toc");
             var tempdata = [];
             var hash = location.hash;
@@ -1225,14 +1261,14 @@
           window.state.currentChapter = parseInt(r.params.idx);
           window.booknav.enable();
           getTOC(r.params.id).then(function(toc) {
-            loadBookNav(r.params.id, r.params.idx);
+            window.booknav.update(r.params.id, r.params.idx);
             loadBookChapter(r.params.id, toc[r.params.idx - 1].file).then(function(data) {
                 displayBookChapter(data, r.params.p, parseInt(r.params.idx));
               })
               .then(resolve)
               .then(updatePageTitle)
               .then(function() {
-                loadAudioFile(r.params.id, toc[r.params.idx - 1].file);
+                window.player.update(r.params.id,r.params.idx-1);
               });
           });
         });
@@ -1337,25 +1373,6 @@
       });
     }
 
-    function loadBookNav(id, idx) {
-      idx = parseInt(idx);
-      list = [
-        ["Table Of Contents", "#book/" + id]
-      ];
-      if (idx > 1) {
-        list.push(["Previous Chapter", "#book/" + id + "/chapter/" + (idx - 1)]);
-      }
-      if (window.state.booklist[id].toc.length > idx) {
-        list.push(["Next Chapter", "#book/" + id + "/chapter/" + (idx + 1)]);
-      }
-      displaylist = [];
-      for (var i = 0, l = list.length; i < l; i++) {
-        displaylist.push("<li><a href='" + list[i][1] + "'>" + list[i][0] + "</a></li>");
-      }
-      displaylist.push("<li onclick='bookmark()'><span>Bookmark</span></li>");
-      window.booknav.update(displaylist.join(''));
-    }
-
     function getBookAttribute(id, attribute) {
       return window.state.booklist[id][attribute];
     }
@@ -1437,25 +1454,6 @@
           elements[p].scrollIntoView(true);
         }
       });
-    }
-
-    function loadAudioFile(bookid, file) {
-      function setAudioFileRef(toc, file) {
-        var l = toc.length;
-        var i = 0;
-        while (toc[i].file !== file) {
-          i++;
-        }
-        if (window.player.getSource() !== toc[i].audio) {
-          window.player.setSource(toc[i].audio);
-        }
-      }
-
-      var toc = window.state.booklist[bookid].toc;
-      setAudioFileRef(toc, file);
-      if (window.state.autoplay) {
-        window.player.play();
-      }
     }
 
     function bookmark() {
