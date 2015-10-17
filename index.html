@@ -501,7 +501,7 @@
       text-align: center;
     }
     
-    #book-inner.sherwood h2 {    
+    #book-inner-c.sherwood h2 {    
       font-family: Sherwood;
     }
     
@@ -760,6 +760,10 @@
       fastdom.read(fn, window.ui[ref]);
     }
 
+    function readDOMel(el, fn) {
+      fastdom.read(fn, el);
+    }
+
     function updateDOM(ref, fn) {
       fastdom.write(fn, window.ui[ref]);
     }
@@ -850,12 +854,8 @@
 
     }
 
-    function uncheck(el) {
-      el.checked = false;
-    }
-
     function isSmallScreen() {
-      return window.viewport < 460;
+      return window.viewport < 520;
     }
 
     function isElementInViewport(el) {
@@ -932,11 +932,8 @@
       };
       window.bookmarking = false;
       window.animating = [];
-      //TODO: rewrite this to be their own modules
-      window.ui.bookinner = document.getElementById("book-inner");
       window.ui.booktocC = document.getElementById("book-toc-c");
       window.ui.bookinnerC = document.getElementById("book-inner-c");
-      window.ui.pagetotal = document.getElementById("page-total");
 
       window.pagetitle = (function() {
         var title = document.getElementById("page-title");
@@ -1192,6 +1189,102 @@
         };
         
       })();
+      
+      window.bookchapter = (function() {
+      
+        var bookinner = document.getElementById("book-inner");
+        var pagetotal = document.getElementById("page-total");
+        
+        var converter = new showdown.Converter();
+        
+        var showPageTotal = function() {
+          updateDOMel(pagetotal, function() {
+            removeClass(this, "hidden");
+          });
+        }
+        
+        var hidePageTotal = function() {
+          updateDOMel(pagetotal, function() {
+            addClass(this, "hidden");
+          });
+        }
+        
+        var updatePageTotal = function(num) {
+          updateDOMel(pagetotal, function() {
+            this.innerHTML = num + " pages";
+          });
+        }
+        
+        var update = function(data,pos,idx) {
+          updatePageTotal(Math.round(data.length / (40 * 65)));
+          if (isSmallScreen()) {
+            data = data.replace(/([a-zA-Z0-9]+).jpg/g, "$1-sm.jpg");          
+          }
+          else {
+            data = data.replace(/([a-zA-Z0-9]+).jpg/g, "$1-md.jpg");
+          }
+          var temp = converter.makeHtml(data).split("<p>");
+          var dfont = getBookAttribute(window.state.selectedbook, "dropcapclass");
+          var i = 1;
+          while (i < temp.length) {
+            if (temp[i][0] !== "<") {
+              if (temp[i][0] == '"') {
+                temp[i] = "<span style='float:left;'>&quot;</span>" + "<span class='dropcap " + dfont + "'>" + temp[i][1] + "</span>" + temp[i].slice(2);
+              }
+              else {
+                temp[i] = "<span class='dropcap " + dfont + "'>" + temp[i][0] + "</span>" + temp[i].slice(1);
+              }
+              i = temp.length;
+            }
+            i++;
+          }
+          temp = temp.join("<p>");
+          temp = temp.replace(/<blockquote>/g, "<blockquote><pre>");
+          temp = temp.replace(/<\/blockquote>/g, "</pre></blockquote>");
+          if (getBookAttribute(window.state.selectedbook,"captions")) {
+            temp = temp.replace(/(<img .* alt="(.*?)".*\/>)/g,"<figure>$1<figcaption>$2</figcaption></figure>");
+          }
+          
+          var toc = getBookAttribute(window.state.selectedbook,"toc");
+          if (window.state.currentChapter < toc.length) {
+            temp = temp + "<a class='next-chapter-link' href='#book/" + window.state.selectedbook + "/chapter/" + (idx + 1).toString() + "'>Next Chapter</a>";
+          }
+          
+          updateDOMel(bookinner, function() {
+            this.innerHTML = temp; 
+            if (pos) {
+              var elements = this.getElementsByTagName("p");
+              elements[pos].scrollIntoView(true);
+            }
+          });
+        };
+        
+      var updateScrollPos = function(pos) {
+        updateDOMel(bookinner, function() {
+          this.scrollTop = pos;
+        });
+      }
+      
+      var getCurrentPos = function() {
+        var elements = bookinner.getElementsByTagName("p");
+        for (var i = 0, l = elements.length; i < l; i++) {
+          el = elements[i];
+          if (isElementInViewport(el)) {
+            break;
+          }
+        }
+        return i;
+      }
+        
+      return {
+        showPageTotal: showPageTotal,
+        hidePageTotal: hidePageTotal,
+        update: update,
+        updateScrollPos: updateScrollPos,
+        getCurrentPos: getCurrentPos
+      };
+      
+      })();
 
       //
       //Navigation handling
@@ -1289,7 +1382,7 @@
           getTOC(r.params.id).then(function(toc) {
             window.booknav.update(r.params.id, r.params.idx);
             loadBookChapter(r.params.id, toc[r.params.idx - 1].file).then(function(data) {
-                displayBookChapter(data, r.params.p, parseInt(r.params.idx));
+                window.bookchapter.update(data, r.params.p, parseInt(r.params.idx));
               })
               .then(resolve)
               .then(window.pagetitle.update)
@@ -1338,13 +1431,11 @@
           case "bookchapter":
             switch (oldpage) {
               default: animate("bookinnerC", "slide-in", "a");
-              updateDOM("bookinner",function() {
-                addClass(this,getBookAttribute(window.state.selectedbook,"titleclass"));
-              });
-              window.player.enable();
-              updateDOM("pagetotal", function() {
-                removeClass(this, "hidden");
-              });
+                updateDOM("bookinnerC",function() {
+                  addClass(this,getBookAttribute(window.state.selectedbook,"titleclass"));
+                });
+                window.player.enable();
+                window.bookchapter.showPageTotal();
             }
             break;
         }
@@ -1361,16 +1452,12 @@
             if (!window.player.isPlaying()) {
               window.player.disable();
             }
-            updateDOM("pagetotal", function() {
-              addClass(this, "hidden");
-            });
+            window.bookchapter.hidePageTotal();
             window.booknav.disable();
           }
-          updateDOM("bookinner", function() {
-            this.scrollTop = 0;
-          });
+          window.bookchapter.updateScrollPos(0);
           animate("bookinnerC", "slide-in", "r");       
-          updateDOM("bookinner",function() {
+          updateDOM("bookinnerC",function() {
             removeClass(this,getBookAttribute(window.state.selectedbook,"titleclass"));
           });
           break;
@@ -1417,67 +1504,9 @@
       return ajax("source/" + id + "/" + file);
     }
 
-    function displayBookChapter(data, p, idx) {
-      var converter = new showdown.Converter();
-      updateDOM("pagetotal", function() {
-        this.innerHTML = Math.round(data.length / (40 * 65)) + " pages";
-      });
-      if (window.viewport < 520) {
-        data = data.replace(/([a-zA-Z0-9]+).jpg/g, "$1-sm.jpg");
-      }
-      //~ else if (window.viewport < 1200) {
-      else {
-        data = data.replace(/([a-zA-Z0-9]+).jpg/g, "$1-md.jpg");
-      }
-      var temp = converter.makeHtml(data).split("<p>");
-      var dfont = getBookAttribute(window.state.selectedbook, "dropcapclass")
-      var i = 1;
-      while (i < temp.length) {
-        if (temp[i][0] !== "<") {
-          if (temp[i][0] == '"') {
-            temp[i] = "<span style='float:left;'>&quot;</span>" + "<span class='dropcap " + dfont + "'>" + temp[i][1] + "</span>" + temp[i].slice(2);
-          }
-          else {
-            temp[i] = "<span class='dropcap " + dfont + "'>" + temp[i][0] + "</span>" + temp[i].slice(1);
-          }
-          i = temp.length;
-        }
-        i = i + 1;
-      }
-      temp = temp.join("<p>");
-      temp = temp.replace(/<blockquote>/g, "<blockquote><pre>");
-      temp = temp.replace(/<\/blockquote>/g, "</pre></blockquote>");
-      if (getBookAttribute(window.state.selectedbook,"captions")) {
-        temp = temp.replace(/(<img .* alt="(.*?)".*\/>)/g,"<figure>$1<figcaption>$2</figcaption></figure>");
-      }
-      
-      var toc = window.state.booklist[window.state.selectedbook].toc;
-      if (window.state.currentChapter < toc.length) {
-        temp = temp + "<a class='next-chapter-link' href='#book/" + window.state.selectedbook + "/chapter/" + (idx + 1).toString() + "'>Next Chapter</a>";
-      }
-      
-      updateDOM("bookinner", function() {
-        this.innerHTML = temp; 
-        if (p) {
-          var elements = this.getElementsByTagName("p");
-          elements[p].scrollIntoView(true);
-        }
-      });
-    }
-
     function bookmark() {
       window.bookmarking = true;
-      readDOM("bookinner", function() {
-        var scroll = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-        var elements = this.getElementsByTagName("p");
-        for (var i = 0, l = elements.length; i < l; i++) {
-          el = elements[i];
-          if (isElementInViewport(el)) {
-            document.location.hash = document.location.hash.split("?")[0] + "?p=" + i;
-            break;
-          }
-        }
-      });
+      document.location.hash = document.location.hash.split("?")[0] + "?p=" + window.bookchapter.getCurrentPos();
     }
   </script>
 
