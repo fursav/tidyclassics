@@ -25,19 +25,25 @@
 
 @font-face {
   font-family: Sherwood;
-  src: url(fonts/SHERWOOD.TTF);
+  src: url(fonts/sherwood-webfont.woff2) format('woff2'),
+       url(fonts/sherwood-webfont.woff) format('woff'),
+       url(fonts/sherwood-webfont.ttf) format('truetype');
   font-weight: 400;
 }
 
 @font-face {
   font-family: EileenCaps;
-  src: url(fonts/EileenCaps-Regular.ttf);
+  src: url(fonts/eileencaps-regular-webfont.woff2) format('woff2'),
+       url(fonts/eileencaps-regular-webfont.woff) format('woff'),
+       url(fonts/eileencaps-regular-webfont.ttf) format('truetype');
   font-weight: 400;
 }
 
 @font-face {
   font-family: ZallmanCaps;
-  src: url(fonts/ZallmanCaps.ttf);
+  src: url(fonts/zallmancaps-webfont.woff2) format('woff2'),
+       url(fonts/zallmancaps-webfont.woff) format('woff'),
+       url(fonts/zallmancaps-webfont.ttf) format('truetype');
   font-weight: 400;
 }
 
