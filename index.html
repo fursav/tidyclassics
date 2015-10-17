@@ -908,6 +908,10 @@
     //
     ready(function() {
 
+      fastdom.onError = function(error) {
+        console.log(error);
+      };
+
       window.viewport = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
       window.viewportHeight = parseInt(Math.max(document.documentElement.clientHeight, window.innerHeight || 0), 10);
 
@@ -929,10 +933,8 @@
       window.bookmarking = false;
       window.animating = [];
       //TODO: rewrite this to be their own modules
-      window.ui.bookListTemplate = document.getElementById("book-list-template");
       window.ui.tocTemplate = document.getElementById("toc-template");
       window.ui.title = document.getElementById("page-title");
-      window.ui.booklist = document.getElementById("book-list");
       window.ui.booktoc = document.getElementById("book-toc");
       window.ui.bookinner = document.getElementById("book-inner");
       window.ui.booktocC = document.getElementById("book-toc-c");
@@ -1080,6 +1082,28 @@
           }
         };
       })();
+      
+      window.booklist = (function() {
+      
+        var bookListTemplate = document.getElementById("book-list-template").innerHTML;
+        Mustache.parse(bookListTemplate);
+        var booklist = document.getElementById("book-list");
+        return {
+          display: function(ids) {
+            var data = [];
+            for (var i = 0, l = ids.length; i < l; i++) {
+              data.push(window.state.booklist[ids[i]]);
+            } 
+            updateDOMel(booklist, function() {
+              this.innerHTML = Mustache.render(bookListTemplate, {
+                list: data
+              });
+            });
+          }
+
+        };
+        
+      })();
 
       //
       //Navigation handling
@@ -1111,10 +1135,6 @@
       //
       window.router = Rlite();
 
-      fastdom.onError = function(error) {
-        console.log(error);
-      };
-
       loadBookList().then(function(data) {
         function getFontClass(str) {
           switch (str) {
@@ -1137,12 +1157,18 @@
               return "";
           }
         }
+        
+        var thumbSuffix = "";
+        if (isSmallScreen()) {
+          thumbSuffix = "-sm";
+        }
       
         for (var i = 0, l = data.length; i < l; i++) {
           window.state.booklist[data[i].id] = data[i];
           window.state.booklist[data[i].id].displayAuthor = data[i].author[0] + ", " + data[i].author[1];
-          window.state.booklist[data[i].id].dropcapclass = getFontClass(window.state.booklist[data[i].id].dropcap);
-          window.state.booklist[data[i].id].titleclass = getFontClass(window.state.booklist[data[i].id].titlefont);
+          window.state.booklist[data[i].id].dropcapclass = getFontClass(data[i].dropcap);
+          window.state.booklist[data[i].id].titleclass = getFontClass(data[i].titlefont);
+          window.state.booklist[data[i].id].thumb = "source/" + data[i].id + "/thumb" + thumbSuffix + ".jpg";
         }
       }).then(function() {
         processHash();
@@ -1153,7 +1179,8 @@
         window.state.page = "booklist";
         window.booknav.hide();
         window.player.hide();
-        displayBookList(Object.keys(window.state.booklist));
+        //~ displayBookList(Object.keys(window.state.booklist));
+        window.booklist.display(Object.keys(window.state.booklist));
         updatePageTitle();
       });
 
@@ -1308,28 +1335,6 @@
 
     function loadBookList() {
       return getJSON("source/books.json");
-    }
-
-    function displayBookList(ids) {
-      var data = [];
-      for (var i = 0, l = ids.length; i < l; i++) {
-        data.push(window.state.booklist[ids[i]]);
-        var a = "";
-        if (isSmallScreen()) {
-          a = "-sm";
-        }
-        data[i].thumb = "source/" + data[i].id + "/thumb" + a + ".jpg";
-      }
-      readDOM("bookListTemplate", function() {
-        var template = this.innerHTML;
-        Mustache.parse(template);
-        var rendered = Mustache.render(template, {
-          list: data
-        });
-        updateDOM("booklist", function() {
-          this.innerHTML = rendered;
-        });
-      });
     }
 
     function getTOC(id) {
