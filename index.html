@@ -1104,6 +1104,32 @@
         };
         
       })();
+      
+      window.booktoc = (function() {
+      
+        var tocTemplate = document.getElementById("toc-template").innerHTML;
+        Mustache.parse(tocTemplate);
+        var booktoc = document.getElementById("book-toc");
+        return {
+          display: function(id) {
+            console.log(id);
+            var data = getBookAttribute(id,"toc");
+            var tempdata = [];
+            var hash = location.hash;
+            for (var i = 0, l = data.length; i < l; i++) {
+              tempdata.push(data[i]);
+              tempdata[i].href = hash + "/chapter/" + data[i].idx;
+            }
+            updateDOMel(booktoc, function() {
+              this.innerHTML = Mustache.render(tocTemplate, {
+                list: tempdata
+              });
+            });            
+          }
+        
+        };
+        
+      })();
 
       //
       //Navigation handling
@@ -1179,7 +1205,6 @@
         window.state.page = "booklist";
         window.booknav.hide();
         window.player.hide();
-        //~ displayBookList(Object.keys(window.state.booklist));
         window.booklist.display(Object.keys(window.state.booklist));
         updatePageTitle();
       });
@@ -1187,7 +1212,9 @@
       window.router.add('book/:id', function(r) {
         window.state.page = "book";
         window.state.selectedbook = r.params.id;
-        getTOC(r.params.id).then(displayTOC);
+        getTOC(r.params.id).then(function() {
+          window.booktoc.display(r.params.id);
+        });
         updatePageTitle();
       });
 
@@ -1339,11 +1366,11 @@
 
     function getTOC(id) {
       return new Promise(function(resolve, reject) {
-        var toc = window.state.booklist[id].toc;
+        var toc = getBookAttribute(id,"toc");
         if (toc === null || toc === undefined) {
           loadTOC(id).then(resolve);
         } else {
-          resolve(window.state.booklist[id].toc);
+          resolve(toc);
         }
       });
     }
@@ -1357,25 +1384,6 @@
         }
         window.state.booklist[id].toc = data;
         return data;
-      });
-    }
-
-    function displayTOC(data) {
-      readDOM("tocTemplate", function() {
-        var tempdata = [];
-        var hash = location.hash;
-        for (var i = 0, l = data.length; i < l; i++) {
-          tempdata.push(data[i]);
-          tempdata[i].href = hash + "/chapter/" + data[i].idx;
-        }
-        var template = this.innerHTML;
-        Mustache.parse(template);
-        var rendered = Mustache.render(template, {
-          list: tempdata
-        });
-        updateDOM("booktoc", function() {
-          this.innerHTML = rendered;
-        });
       });
     }
 
